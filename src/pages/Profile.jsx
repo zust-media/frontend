@@ -216,6 +216,7 @@ function Profile() {
             <p><span className="font-semibold">{t('profile.info.username')}:</span> {user?.username}</p>
             <p><span className="font-semibold">{t('profile.info.email')}:</span> {user?.email}</p>
             <p><span className="font-semibold">{t('profile.info.role')}:</span> {user?.role || 'user'}</p>
+            <p><span className="font-semibold">{t('profile.info.score')}:</span> {currentUser?.score || user?.score || 0}</p>
             <p><span className="font-semibold">{t('profile.info.profileUrl')}:</span> /u/{user?.slug || user?.id}</p>
           </div>
           <div className="divider">{t('profile.email.title')}</div>

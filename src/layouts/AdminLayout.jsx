@@ -2,11 +2,12 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { Settings, Users, BarChart3, X } from 'lucide-react';
+import { Settings, Users, BarChart3, Calendar, X } from 'lucide-react';
 
 const adminNavItems = [
   { path: '/admin', labelKey: 'admin.dashboard', icon: BarChart3, exact: true },
   { path: '/admin/users', labelKey: 'admin.users.title', icon: Users },
+  { path: '/admin/tasks', labelKey: 'tasks.adminTitle', icon: Calendar },
   { path: '/admin/settings', labelKey: 'admin.settings.title', icon: Settings },
 ];
 

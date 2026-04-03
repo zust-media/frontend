@@ -21,9 +21,12 @@ import UserProfile from './pages/UserProfile';
 import UrlGenerator from './pages/UrlGenerator';
 import Collections from './pages/Collections';
 import CollectionDetail from './pages/CollectionDetail';
+import Tasks from './pages/Tasks';
+import MyTasks from './pages/MyTasks';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Users from './pages/admin/Users';
 import Settings from './pages/admin/Settings';
+import AdminTasks from './pages/admin/AdminTasks';
 
 function App() {
   return (
@@ -53,6 +56,8 @@ function App() {
               <Route path="url-generator" element={<UrlGenerator />} />
               <Route path="collections" element={<Collections />} />
               <Route path="collections/:id" element={<CollectionDetail />} />
+              <Route path="tasks" element={<Tasks />} />
+              <Route path="my-tasks" element={<MyTasks />} />
             </Route>
             <Route
               path="/admin"
@@ -64,6 +69,7 @@ function App() {
             >
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<Users />} />
+              <Route path="tasks" element={<AdminTasks />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="u" element={<UserProfile />} />

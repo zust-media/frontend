@@ -13,6 +13,8 @@ const navItems = [
   { path: '/categories', labelKey: 'nav.categories', icon: 'folder' },
   { path: '/search', labelKey: 'nav.search', icon: 'search' },
   { path: '/collections', labelKey: 'nav.collections', icon: 'folder-open' },
+  { path: '/tasks', labelKey: 'nav.tasks', icon: 'task' },
+  { path: '/my-tasks', labelKey: 'nav.myTasks', icon: 'star' },
   { path: '/url-generator', labelKey: 'nav.urlGenerator', icon: 'link', adminOnly: true },
   { path: '/admin', labelKey: 'admin.dashboard', icon: 'settings', adminOnly: true },
 ];
