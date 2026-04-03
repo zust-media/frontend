@@ -1,0 +1,274 @@
+{
+  "common": {
+    "buttons": {
+      "submit": "提交",
+      "cancel": "取消",
+      "delete": "删除",
+      "edit": "编辑",
+      "save": "保存",
+      "update": "更新",
+      "upload": "上传",
+      "download": "下载",
+      "close": "关闭",
+      "confirm": "确认",
+      "copy": "复制",
+      "regenerate": "重新生成"
+    },
+    "messages": {
+      "success": "成功",
+      "error": "错误",
+      "loading": "加载中...",
+      "noData": "暂无数据",
+      "confirmDelete": "确定要删除吗？",
+      "operationSuccess": "操作成功",
+      "operationFailed": "操作失败"
+    },
+    "labels": {
+      "search": "搜索",
+      "filter": "筛选",
+      "all": "全部",
+      "total": "共",
+      "actions": "操作",
+      "createdAt": "创建时间",
+      "updatedAt": "更新时间"
+    }
+  },
+  "nav": {
+    "dashboard": "仪表盘",
+    "profile": "个人资料",
+    "categories": "分类",
+    "tags": "标签",
+    "images": "图片",
+    "myImages": "我的图片",
+    "search": "搜索",
+    "logout": "退出登录",
+    "login": "登录",
+    "register": "注册"
+  },
+  "auth": {
+    "login": {
+      "title": "登录",
+      "form": {
+        "email": "邮箱",
+        "emailPlaceholder": "请输入邮箱",
+        "password": "密码",
+        "passwordPlaceholder": "请输入密码"
+      },
+      "buttons": {
+        "login": "登录",
+        "register": "注册"
+      },
+      "messages": {
+        "noAccount": "还没有账号？",
+        "loginSuccess": "登录成功",
+        "loginFailed": "登录失败"
+      }
+    },
+    "register": {
+      "title": "注册",
+      "form": {
+        "username": "用户名",
+        "usernamePlaceholder": "请输入用户名",
+        "email": "邮箱",
+        "emailPlaceholder": "请输入邮箱",
+        "password": "密码",
+        "passwordPlaceholder": "请输入密码",
+        "confirmPassword": "确认密码",
+        "confirmPasswordPlaceholder": "请再次输入密码",
+        "captcha": "验证码",
+        "captchaPlaceholder": "请输入验证码"
+      },
+      "buttons": {
+        "register": "注册",
+        "login": "登录"
+      },
+      "messages": {
+        "hasAccount": "已有账号？",
+        "registerSuccess": "注册成功",
+        "registerFailed": "注册失败"
+      }
+    }
+  },
+  "profile": {
+    "title": "个人资料",
+    "info": {
+      "title": "基本信息",
+      "username": "用户名",
+      "email": "邮箱",
+      "role": "角色",
+      "profileUrl": "个人链接"
+    },
+    "slug": {
+      "title": "个人链接",
+      "publicUrl": "您的公开链接",
+      "changeUrl": "修改链接地址",
+      "updateSuccess": "链接更新成功",
+      "updateFailed": "链接更新失败",
+      "sameSlug": "新链接与当前相同",
+      "invalidSlug": "请输入有效的链接",
+      "waitMessage": "{{days}}天后可修改链接",
+      "reservedSlug": "该链接被禁止使用"
+    },
+    "apiToken": {
+      "title": "API Token",
+      "copySuccess": "已复制到剪贴板",
+      "regenerateSuccess": "API Token 已重新生成",
+      "regenerateFailed": "重新生成 Token 失败",
+      "regenerateConfirm": "重新生成 API Token",
+      "confirmTitle": "重新生成 API Token",
+      "confirmMessage": "请输入您的密码以确认此操作。您的 API Token 将立即更改。",
+      "enterPassword": "请输入密码",
+      "incorrectPassword": "密码错误"
+    },
+    "password": {
+      "title": "修改密码",
+      "oldPassword": "旧密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码",
+      "changeSuccess": "密码修改成功",
+      "changeFailed": "密码修改失败",
+      "mismatch": "两次输入的密码不一致",
+      "tooShort": "密码长度至少6个字符"
+    }
+  },
+  "dashboard": {
+    "title": "仪表盘",
+    "welcome": "欢迎，{{username}}！",
+    "stats": {
+      "totalImages": "图片总数",
+      "totalCategories": "分类总数",
+      "totalTags": "标签总数",
+      "totalUsers": "用户总数"
+    },
+    "recentImages": "最近上传",
+    "noImages": "暂无上传图片"
+  },
+  "images": {
+    "title": "图片管理",
+    "myImages": "我的图片",
+    "upload": {
+      "title": "上传图片",
+      "selectFile": "选择文件",
+      "dragDrop": "拖拽图片到此处，或点击选择文件",
+      "uploading": "上传中...",
+      "uploadSuccess": "图片上传成功",
+      "uploadFailed": "图片上传失败"
+    },
+    "form": {
+      "name": "名称",
+      "category": "分类",
+      "tags": "标签",
+      "selectCategory": "选择分类",
+      "selectTags": "选择标签"
+    },
+    "preview": {
+      "title": "图片详情",
+      "uploadedBy": "上传者",
+      "uploadedAt": "上传时间",
+      "size": "大小",
+      "dimensions": "尺寸",
+      "category": "分类",
+      "tags": "标签",
+      "noTags": "无标签"
+    },
+    "list": {
+      "noImages": "暂无图片",
+      "loadMore": "加载更多"
+    }
+  },
+  "categories": {
+    "title": "分类",
+    "gallery": "分类浏览",
+    "management": "分类管理",
+    "detail": "分类详情",
+    "create": {
+      "title": "创建分类",
+      "name": "分类名称",
+      "namePlaceholder": "请输入分类名称",
+      "description": "描述",
+      "descriptionPlaceholder": "请输入分类描述",
+      "success": "分类创建成功",
+      "failed": "分类创建失败"
+    },
+    "edit": {
+      "title": "编辑分类",
+      "success": "分类更新成功",
+      "failed": "分类更新失败"
+    },
+    "delete": {
+      "success": "分类删除成功",
+      "failed": "分类删除失败",
+      "hasImages": "无法删除有关联图片的分类"
+    },
+    "list": {
+      "noCategories": "暂无分类",
+      "imageCount": "{{count}} 张图片"
+    },
+    "form": {
+      "name": "名称",
+      "description": "描述"
+    }
+  },
+  "tags": {
+    "title": "标签",
+    "gallery": "标签浏览",
+    "management": "标签管理",
+    "detail": "标签详情",
+    "create": {
+      "title": "创建标签",
+      "name": "标签名称",
+      "namePlaceholder": "请输入标签名称",
+      "description": "描述",
+      "descriptionPlaceholder": "请输入标签描述",
+      "success": "标签创建成功",
+      "failed": "标签创建失败"
+    },
+    "edit": {
+      "title": "编辑标签",
+      "success": "标签更新成功",
+      "failed": "标签更新失败"
+    },
+    "delete": {
+      "success": "标签删除成功",
+      "failed": "标签删除失败"
+    },
+    "list": {
+      "noTags": "暂无标签",
+      "imageCount": "{{count}} 张图片"
+    },
+    "form": {
+      "name": "名称",
+      "description": "描述"
+    }
+  },
+  "search": {
+    "title": "搜索",
+    "placeholder": "搜索图片...",
+    "filters": {
+      "title": "筛选",
+      "category": "分类",
+      "tag": "标签",
+      "dateRange": "日期范围",
+      "clearAll": "清除全部"
+    },
+    "results": {
+      "title": "搜索结果",
+      "noResults": "未找到结果"
+    }
+  },
+  "userProfile": {
+    "title": "用户资料",
+    "imagesCount": "共上传 {{count}} 张图片",
+    "noImages": "暂无上传图片",
+    "backToHome": "返回首页"
+  },
+  "errors": {
+    "notFound": "未找到",
+    "serverError": "服务器错误",
+    "unauthorized": "未授权",
+    "forbidden": "禁止访问",
+    "networkError": "网络错误",
+    "pageNotFound": "页面不存在",
+    "goHome": "返回首页"
+  }
+}
