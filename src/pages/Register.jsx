@@ -1,10 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { authService } from '../services/authService';
+import { AuthContext } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 function Register() {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading } = useContext(AuthContext);
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
@@ -18,6 +20,12 @@ function Register() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/');
+    }
+  }, [authLoading, isAuthenticated, navigate]);
 
   const loadCaptcha = async () => {
     setIsPreparing(true);
@@ -81,6 +89,14 @@ function Register() {
       setIsLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">

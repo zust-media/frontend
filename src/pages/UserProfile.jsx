@@ -3,8 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User } from 'lucide-react';
 import { imageService } from '../services/imageService';
 import { AuthContext } from '../context/AuthContext';
-import ImageCard from '../components/ImageCard';
-import ImagePreviewModal from '../components/ImagePreviewModal';
+import ImageGrid from '../components/ImageGrid';
 import { useTranslation } from 'react-i18next';
 
 function UserProfile() {
@@ -15,7 +14,6 @@ function UserProfile() {
   const [user, setUser] = useState(null);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -44,30 +42,6 @@ function UserProfile() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePreview = async (image) => {
-    try {
-      const response = await imageService.getImageById(image.id);
-      const fullImage = response.data.data;
-      setPreviewImage({
-        ...image,
-        ...fullImage,
-        previewUrl: fullImage.url || image.url,
-      });
-    } catch {
-      setPreviewImage({
-        ...image,
-        previewUrl: image.url || image.fileUrl,
-      });
-    }
-  };
-
-  const handleDownload = (image) => {
-    const link = document.createElement('a');
-    link.href = image.url || image.fileUrl;
-    link.download = image.name || image.originalName;
-    link.click();
   };
 
   if (loading) {
@@ -108,31 +82,11 @@ function UserProfile() {
         </div>
       </div>
 
-      {images.length === 0 ? (
-        <div className="text-center py-8 text-base-content/50">
-          {t('userProfile.noImages')}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((image) => (
-            <ImageCard
-              key={image.id}
-              image={image}
-              onClick={handlePreview}
-              onPreview={handlePreview}
-              onDownload={handleDownload}
-            />
-          ))}
-        </div>
-      )}
-
-      {previewImage && (
-        <ImagePreviewModal
-          image={previewImage}
-          onClose={() => setPreviewImage(null)}
-          onDownload={handleDownload}
-        />
-      )}
+      <ImageGrid
+        images={images}
+        onImagesChange={setImages}
+        emptyMessage={t('userProfile.noImages')}
+      />
     </div>
   );
 }

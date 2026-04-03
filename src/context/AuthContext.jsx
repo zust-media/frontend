@@ -5,34 +5,39 @@ export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = async () => {
+    const checkAuth = async () => {
       const storedToken = localStorage.getItem('token');
-      if (storedToken) {
-        try {
-          const response = await authService.getCurrentUser();
-          setUser(response.data.data);
-          setToken(storedToken);
-          setIsAuthenticated(true);
-        } catch (error) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
-          setToken(null);
-          setIsAuthenticated(false);
-        }
+      if (!storedToken) {
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
+
+      try {
+        const response = await authService.getCurrentUser();
+        setUser(response.data.data);
+        setToken(storedToken);
+        setIsAuthenticated(true);
+      } catch (error) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+        setToken(null);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    initAuth();
+
+    checkAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const response = await authService.login({ email, password });
+  const login = async (username, password) => {
+    const response = await authService.login({ username, password });
     const { token: newToken, user: userData } = response.data.data;
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(userData));

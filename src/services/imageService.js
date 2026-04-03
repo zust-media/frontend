@@ -33,6 +33,10 @@ export const imageService = {
     return api.delete(`/api/images/${imageId}/tags/${tagId}`);
   },
 
+  removeCategory(imageId) {
+    return api.put(`/api/images/${imageId}`, { categoryId: null });
+  },
+
   getPreviewUrl(id) {
     return api.get(`/api/images/${id}/preview`);
   },
@@ -49,6 +53,10 @@ export const categoryService = {
 
   getCategoryById(id) {
     return api.get(`/api/categories/${id}`);
+  },
+
+  getCategoryBySlug(slug) {
+    return api.get(`/api/categories/slug/${slug}`);
   },
 
   createCategory(data) {
@@ -71,6 +79,10 @@ export const tagService = {
 
   getTagById(id) {
     return api.get(`/api/tags/${id}`);
+  },
+
+  getTagBySlug(slug) {
+    return api.get(`/api/tags/slug/${slug}`);
   },
 
   createTag(data) {

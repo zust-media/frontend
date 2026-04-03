@@ -4,7 +4,14 @@ import { X, Download, Edit, Trash2 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
-function ImagePreviewModal({ image, onClose, onDownload, onEdit, onDelete }) {
+function ImagePreviewModal({
+  image,
+  onClose,
+  onDownload,
+  onEdit,
+  onDelete,
+  onRemove
+}) {
   const { t } = useTranslation();
   const { user } = useContext(AuthContext);
 
@@ -42,12 +49,19 @@ function ImagePreviewModal({ image, onClose, onDownload, onEdit, onDelete }) {
         <div className="mt-4 flex justify-between items-center">
           <div className="flex flex-wrap gap-2">
             {image.category && (
-              <Link to={`/categories/${image.category.slug}`} className="badge badge-outline hover:badge-primary">
+              <Link
+                to={`/categories/${image.category.slug}`}
+                className="badge badge-outline hover:badge-primary"
+              >
                 {image.category.name}
               </Link>
             )}
             {image.tags?.map((tag) => (
-              <Link key={tag.id} to={`/tags/${tag.slug}`} className="badge badge-ghost hover:badge-primary">
+              <Link
+                key={tag.id}
+                to={`/tags/${tag.slug}`}
+                className="badge badge-ghost hover:badge-primary"
+              >
                 {tag.name}
               </Link>
             ))}
@@ -71,6 +85,12 @@ function ImagePreviewModal({ image, onClose, onDownload, onEdit, onDelete }) {
                   <button onClick={() => onEdit(image)} className="btn btn-outline btn-sm">
                     <Edit size={16} />
                     {t('common.buttons.edit')}
+                  </button>
+                )}
+                {onRemove && (
+                  <button onClick={() => onRemove(image.id)} className="btn btn-warning btn-sm">
+                    <X size={16} />
+                    {t('common.buttons.remove')}
                   </button>
                 )}
                 {onDelete && (

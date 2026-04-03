@@ -3,7 +3,7 @@ import { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Link as LinkIcon } from 'lucide-react';
 
 const navItems = [
   { path: '/', labelKey: 'nav.dashboard', icon: 'home' },
@@ -12,6 +12,9 @@ const navItems = [
   { path: '/tags', labelKey: 'nav.tags', icon: 'tag' },
   { path: '/categories', labelKey: 'nav.categories', icon: 'folder' },
   { path: '/search', labelKey: 'nav.search', icon: 'search' },
+  { path: '/collections', labelKey: 'nav.collections', icon: 'folder-open' },
+  { path: '/url-generator', labelKey: 'nav.urlGenerator', icon: 'link', adminOnly: true },
+  { path: '/admin', labelKey: 'admin.dashboard', icon: 'settings', adminOnly: true },
 ];
 
 function SidebarLayout() {
@@ -82,7 +85,9 @@ function SidebarLayout() {
         <aside className="menu bg-base-200 w-64 min-h-screen flex flex-col">
           <div className="p-4 text-2xl font-bold">ZUST Media</div>
           <ul className="flex-1 overflow-y-auto">
-            {navItems.map((item) => (
+            {navItems
+              .filter(item => !item.adminOnly || user?.role === 'admin' || user?.role === 'super_admin')
+              .map((item) => (
               <li key={item.path}>
                 <NavLink
                   to={item.path}

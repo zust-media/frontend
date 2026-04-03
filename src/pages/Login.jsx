@@ -1,31 +1,45 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, isAuthenticated, isLoading } = useContext(AuthContext);
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/');
+    }
+  }, [isLoading, isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
-      await login(email, password);
+      await login(username, password);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || t('auth.login.messages.loginFailed'));
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">
@@ -40,14 +54,14 @@ function Login() {
           <form onSubmit={handleSubmit}>
             <div className="form-control mb-4">
               <label className="label">
-                <span className="label-text">{t('auth.login.form.email')}</span>
+                <span className="label-text">{t('auth.login.form.username')}</span>
               </label>
               <input
-                type="email"
-                placeholder={t('auth.login.form.emailPlaceholder')}
+                type="text"
+                placeholder={t('auth.login.form.usernamePlaceholder')}
                 className="input input-bordered"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -65,8 +79,8 @@ function Login() {
               />
             </div>
             <div className="form-control mt-6">
-              <button type="submit" className="btn btn-primary" disabled={isLoading}>
-                {isLoading ? <span className="loading loading-spinner"></span> : t('auth.login.buttons.login')}
+              <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                {isSubmitting ? <span className="loading loading-spinner"></span> : t('auth.login.buttons.login')}
               </button>
             </div>
           </form>

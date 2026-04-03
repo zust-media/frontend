@@ -30,8 +30,12 @@ export const authService = {
     return api.put('/api/users/me', data);
   },
 
-  changePassword(oldPassword, newPassword) {
-    return api.put('/api/users/me/password', { oldPassword, newPassword });
+  changePassword(currentPassword, newPassword) {
+    return api.put('/api/users/me/password', { currentPassword, newPassword });
+  },
+
+  changeEmail(email, password) {
+    return api.put('/api/users/me/email', { email, password });
   },
 
   regenerateToken() {

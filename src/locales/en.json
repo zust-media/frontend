@@ -41,16 +41,18 @@
     "images": "Images",
     "myImages": "My Images",
     "search": "Search",
+    "collections": "Collections",
     "logout": "Logout",
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+    "urlGenerator": "URL Generator"
   },
   "auth": {
     "login": {
       "title": "Login",
       "form": {
-        "email": "Email",
-        "emailPlaceholder": "Enter your email",
+        "username": "Username",
+        "usernamePlaceholder": "Enter your username",
         "password": "Password",
         "passwordPlaceholder": "Enter your password"
       },
@@ -129,6 +131,18 @@
       "changeFailed": "Failed to change password",
       "mismatch": "Passwords do not match",
       "tooShort": "Password must be at least 6 characters"
+    },
+    "email": {
+      "title": "Change Email",
+      "newEmail": "New Email",
+      "newEmailPlaceholder": "Enter new email address",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "updateButton": "Update Email",
+      "updateSuccess": "Email updated successfully",
+      "updateFailed": "Failed to update email",
+      "invalidEmail": "Please enter a valid email",
+      "enterPassword": "Please enter your password"
     }
   },
   "dashboard": {
@@ -138,7 +152,10 @@
       "totalImages": "Total Images",
       "totalCategories": "Total Categories",
       "totalTags": "Total Tags",
-      "totalUsers": "Total Users"
+      "totalUsers": "Total Users",
+      "collections": "Collections",
+      "storage": "Storage",
+      "today": "today"
     },
     "recentImages": "Recent Images",
     "noImages": "No images uploaded yet"
@@ -262,6 +279,100 @@
     "noImages": "No images uploaded yet",
     "backToHome": "Back to Home"
   },
+  "collections": {
+    "title": "My Collections",
+    "create": "New Collection",
+    "name": "Name",
+    "description": "Description",
+    "images": "images",
+    "empty": "No collections yet",
+    "emptyImages": "No images in this collection",
+    "confirmDelete": "Are you sure you want to delete this collection?",
+    "selectAll": "Select All",
+    "downloadSelected": "Download Selected",
+    "removeSelected": "Remove Selected",
+    "widthPlaceholder": "Width",
+    "addToCollection": "Add to Collection"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "backToSite": "Back to Site",
+    "stats": {
+      "totalImages": "Total Images",
+      "totalCategories": "Total Categories",
+      "totalTags": "Total Tags",
+      "totalUsers": "Total Users",
+      "collections": "Collections",
+      "storage": "Storage",
+      "today": "today"
+    },
+    "users": {
+      "title": "User Management",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "role": "Role",
+      "status": "Status",
+      "registeredAt": "Registered",
+      "actions": "Actions",
+      "searchPlaceholder": "Search users...",
+      "create": "Create User",
+      "roles": {
+        "user": "User",
+        "admin": "Admin",
+        "super_admin": "Super Admin"
+      },
+      "active": "Active",
+      "disabled": "Disabled",
+      "enable": "Enable",
+      "disable": "Disable",
+      "confirmDelete": "Are you sure you want to delete this user?"
+    },
+    "tags": {
+      "title": "Tag Management",
+      "name": "Name",
+      "description": "Description",
+      "images": "images",
+      "create": "New Tag",
+      "edit": "Edit Tag",
+      "confirmDelete": "Are you sure you want to delete this tag?"
+    },
+    "categories": {
+      "title": "Category Management",
+      "name": "Name",
+      "description": "Description",
+      "images": "images",
+      "create": "New Category",
+      "edit": "Edit Category",
+      "confirmDelete": "Are you sure you want to delete this category?"
+    },
+    "images": {
+      "title": "Image Management",
+      "searchPlaceholder": "Search images...",
+      "filename": "Filename",
+      "size": "Size",
+      "dimensions": "Dimensions",
+      "uploadedAt": "Uploaded",
+      "confirmDelete": "Are you sure you want to delete this image?"
+    },
+    "settings": {
+      "title": "Site Settings",
+      "thumbnail": "Thumbnail Settings",
+      "watermark": "Watermark Settings",
+      "upload": "Upload Settings",
+      "defaultWidth": "Default Width",
+      "defaultQuality": "Default Quality",
+      "watermarkPosition": "Watermark Position",
+      "marginX": "Horizontal Margin",
+      "marginY": "Vertical Margin",
+      "watermarkOpacity": "Opacity",
+      "watermarkSize": "Size Ratio",
+      "maxFileSize": "Max File Size",
+      "save": "Save Settings",
+      "saved": "Settings saved successfully",
+      "saveFailed": "Failed to save settings"
+    }
+  },
   "errors": {
     "notFound": "Not Found",
     "serverError": "Server Error",
@@ -270,5 +381,18 @@
     "networkError": "Network Error",
     "pageNotFound": "Page not found",
     "goHome": "Go to Home"
+  },
+  "urlGenerator": {
+    "title": "URL Generator",
+    "filename": "Filename",
+    "width": "Width",
+    "height": "Height",
+    "quality": "Quality",
+    "watermark": "Watermark File",
+    "generate": "Generate URL",
+    "signedUrl": "Signed URL (with sig)",
+    "unsignedUrl": "Unsigned URL (requires rawKey)",
+    "unsignedWarning": "Without valid sig, this URL will be rejected",
+    "parameters": "Parameters"
   }
 }

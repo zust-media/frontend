@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { categoryService } from '../services/categoryService';
-import ImageCard from '../components/ImageCard';
-import ImagePreviewModal from '../components/ImagePreviewModal';
-import { imageService } from '../services/imageService';
+import { categoryService, imageService } from '../services/imageService';
+import ImageGrid from '../components/ImageGrid';
 import { useTranslation } from 'react-i18next';
 
 function CategoryDetail() {
@@ -13,7 +11,6 @@ function CategoryDetail() {
   const [category, setCategory] = useState(null);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -35,28 +32,12 @@ function CategoryDetail() {
     }
   };
 
-  const handlePreview = async (image) => {
+  const handleRemoveImage = async (imageId) => {
     try {
-      const response = await imageService.getImageById(image.id);
-      const fullImage = response.data.data;
-      setPreviewImage({
-        ...image,
-        ...fullImage,
-        previewUrl: fullImage.url || image.url,
-      });
-    } catch {
-      setPreviewImage({
-        ...image,
-        previewUrl: image.url || image.fileUrl,
-      });
+      await imageService.removeCategory(imageId);
+    } catch (err) {
+      console.error('Failed to remove category from image:', err);
     }
-  };
-
-  const handleDownload = (image) => {
-    const link = document.createElement('a');
-    link.href = image.url || image.fileUrl;
-    link.download = image.name || image.originalName;
-    link.click();
   };
 
   if (loading) {
@@ -93,31 +74,12 @@ function CategoryDetail() {
         </div>
       </div>
 
-      {images.length === 0 ? (
-        <div className="text-center py-8 text-base-content/50">
-          {t('images.list.noImages')}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((image) => (
-            <ImageCard
-              key={image.id}
-              image={image}
-              onClick={handlePreview}
-              onPreview={handlePreview}
-              onDownload={handleDownload}
-            />
-          ))}
-        </div>
-      )}
-
-      {previewImage && (
-        <ImagePreviewModal
-          image={previewImage}
-          onClose={() => setPreviewImage(null)}
-          onDownload={handleDownload}
-        />
-      )}
+      <ImageGrid
+        images={images}
+        onImagesChange={setImages}
+        emptyMessage={t('images.list.noImages')}
+        onRemove={handleRemoveImage}
+      />
     </div>
   );
 }

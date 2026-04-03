@@ -2,9 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { searchService } from '../services/searchService';
 import { categoryService } from '../services/categoryService';
 import { tagService } from '../services/tagService';
-import { imageService } from '../services/imageService';
-import ImageCard from '../components/ImageCard';
-import ImagePreviewModal from '../components/ImagePreviewModal';
+import ImageGrid from '../components/ImageGrid';
 import { useTranslation } from 'react-i18next';
 
 function Search() {
@@ -17,7 +15,6 @@ function Search() {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [resultCount, setResultCount] = useState(0);
-  const [previewImage, setPreviewImage] = useState(null);
 
   const fetchFilters = async () => {
     try {
@@ -80,30 +77,6 @@ function Search() {
     setSearchQuery('');
     setSelectedCategory('');
     setSelectedTags([]);
-  };
-
-  const handlePreview = async (image) => {
-    try {
-      const response = await imageService.getImageById(image.id);
-      const fullImage = response.data.data;
-      setPreviewImage({
-        ...image,
-        ...fullImage,
-        previewUrl: fullImage.url || image.url,
-      });
-    } catch {
-      setPreviewImage({
-        ...image,
-        previewUrl: image.url || image.fileUrl,
-      });
-    }
-  };
-
-  const handleDownload = (image) => {
-    const link = document.createElement('a');
-    link.href = image.url || image.fileUrl;
-    link.download = image.name || image.originalName;
-    link.click();
   };
 
   return (
@@ -186,35 +159,18 @@ function Search() {
             <div className="flex justify-center py-8">
               <span className="loading loading-spinner loading-lg"></span>
             </div>
-          ) : results.length === 0 ? (
-            <div className="text-center py-8 text-base-content/60">
-              {searchQuery || selectedCategory || selectedTags.length > 0
-                ? t('search.results.noResults')
-                : t('search.placeholder')}
-            </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {results.map((image) => (
-                <ImageCard
-                  key={image.id}
-                  image={image}
-                  onClick={handlePreview}
-                  onPreview={handlePreview}
-                  onDownload={handleDownload}
-                />
-              ))}
-            </div>
+            <ImageGrid
+              images={results}
+              emptyMessage={
+                searchQuery || selectedCategory || selectedTags.length > 0
+                  ? t('search.results.noResults')
+                  : t('search.placeholder')
+              }
+            />
           )}
         </div>
       </div>
-
-      {previewImage && (
-        <ImagePreviewModal
-          image={previewImage}
-          onClose={() => setPreviewImage(null)}
-          onDownload={handleDownload}
-        />
-      )}
     </div>
   );
 }

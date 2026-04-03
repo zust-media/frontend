@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import SidebarLayout from './layouts/SidebarLayout';
+import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -17,12 +18,18 @@ import MyImages from './pages/MyImages';
 import TagDetail from './pages/TagDetail';
 import CategoryDetail from './pages/CategoryDetail';
 import UserProfile from './pages/UserProfile';
+import UrlGenerator from './pages/UrlGenerator';
+import Collections from './pages/Collections';
+import CollectionDetail from './pages/CollectionDetail';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import Users from './pages/admin/Users';
+import Settings from './pages/admin/Settings';
 
 function App() {
   return (
     <LanguageProvider>
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -43,12 +50,27 @@ function App() {
               <Route path="search" element={<Search />} />
               <Route path="images" element={<ImageManagement />} />
               <Route path="my-images" element={<MyImages />} />
+              <Route path="url-generator" element={<UrlGenerator />} />
+              <Route path="collections" element={<Collections />} />
+              <Route path="collections/:id" element={<CollectionDetail />} />
+            </Route>
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<Users />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="u" element={<UserProfile />} />
             <Route path="u/:slug" element={<UserProfile />} />
           </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </LanguageProvider>
   );
 }

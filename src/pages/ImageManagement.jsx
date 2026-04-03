@@ -3,19 +3,15 @@ import {
   Upload,
   Search,
   Trash2,
-  Eye,
-  Download,
   X,
   ChevronLeft,
   ChevronRight,
-  Image as ImageIcon,
   Filter,
-  CheckSquare,
-  Square,
 } from 'lucide-react';
 import { imageService, categoryService, tagService } from '../services/imageService';
 import ImageUpload from '../components/ImageUpload';
 import ImagePreviewModal from '../components/ImagePreviewModal';
+import ImageGrid from '../components/ImageGrid';
 import { AuthContext } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
@@ -26,15 +22,13 @@ function ImageManagement() {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedImages, setSelectedImages] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [editImage, setEditImage] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [editCategory, setEditCategory] = useState('');
   const [editTags, setEditTags] = useState([]);
   const [pagination, setPagination] = useState({
@@ -45,10 +39,6 @@ function ImageManagement() {
   });
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
   const { user } = useContext(AuthContext);
-
-  const canManageImage = (image) => {
-    return user && (image.userId === user.id || user.role === 'admin' || user.role === 'super_admin');
-  };
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -110,46 +100,6 @@ function ImageManagement() {
     }
   };
 
-  const handleSelectAll = () => {
-    if (selectedImages.length === images.length) {
-      setSelectedImages([]);
-    } else {
-      setSelectedImages(images.map((img) => img.id));
-    }
-  };
-
-  const handleSelectImage = (id) => {
-    setSelectedImages((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
-
-  const handleBatchDelete = async () => {
-    if (selectedImages.length === 0) return;
-    if (!confirm(t('common.messages.confirmDelete'))) return;
-
-    try {
-      await imageService.batchDelete(selectedImages);
-      showToast(t('common.messages.operationSuccess'));
-      setSelectedImages([]);
-      fetchImages();
-    } catch {
-      showToast(t('common.messages.operationFailed'), 'error');
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm(t('common.messages.confirmDelete'))) return;
-
-    try {
-      await imageService.deleteImage(id);
-      showToast(t('common.messages.operationSuccess'));
-      fetchImages();
-    } catch {
-      showToast(t('common.messages.operationFailed'), 'error');
-    }
-  };
-
   const handlePreview = async (image) => {
     try {
       const response = await imageService.getImageById(image.id);
@@ -159,13 +109,11 @@ function ImageManagement() {
         ...fullImage,
         previewUrl: fullImage.url || image.url,
       });
-      setShowPreviewModal(true);
     } catch {
       setPreviewImage({
         ...image,
         previewUrl: image.url || image.fileUrl,
       });
-      setShowPreviewModal(true);
     }
   };
 
@@ -217,15 +165,27 @@ function ImageManagement() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!confirm(t('common.messages.confirmDelete'))) return;
+
+    try {
+      await imageService.deleteImage(id);
+      showToast(t('common.messages.operationSuccess'));
+      fetchImages();
+    } catch {
+      showToast(t('common.messages.operationFailed'), 'error');
+    }
+  };
+
   const handleTagToggle = (tagId) => {
     setEditTags((prev) =>
-      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, id]
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
     );
   };
 
   const handleFilterTagToggle = (tagId) => {
     setSelectedTags((prev) =>
-      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, id]
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
     );
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
@@ -348,21 +308,6 @@ function ImageManagement() {
         </div>
       </div>
 
-      {selectedImages.length > 0 && (
-        <div className="alert alert-info mb-4">
-          <div className="flex items-center gap-2">
-            <span>{t('common.labels.total')} {selectedImages.length} {t('images.title').toLowerCase()}</span>
-            <button onClick={() => setSelectedImages([])} className="btn btn-ghost btn-xs">
-              {t('common.buttons.cancel')}
-            </button>
-          </div>
-          <button onClick={handleBatchDelete} className="btn btn-error btn-sm">
-            <Trash2 size={16} />
-            {t('common.buttons.delete')}
-          </button>
-        </div>
-      )}
-
       {loading ? (
         <div className="flex justify-center py-12">
           <span className="loading loading-spinner loading-lg"></span>
@@ -374,96 +319,17 @@ function ImageManagement() {
             {t('common.buttons.submit')}
           </button>
         </div>
-      ) : images.length === 0 ? (
-        <div className="text-center py-12">
-          <ImageIcon className="mx-auto mb-4 text-base-content/30" size={64} />
-          <p className="text-base-content/50">{t('images.list.noImages')}</p>
-          <button onClick={() => setShowUploadModal(true)} className="btn btn-primary mt-4">
-            {t('images.upload.selectFile')}
-          </button>
-        </div>
       ) : (
         <>
-          <div className="flex items-center gap-2 mb-4">
-            <button onClick={handleSelectAll} className="btn btn-ghost btn-sm">
-              {selectedImages.length === images.length ? (
-                <CheckSquare size={18} />
-              ) : (
-                <Square size={18} />
-              )}
-              {t('common.labels.all')}
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {images.map((image) => (
-              <div
-                key={image.id}
-                className={`card bg-base-100 shadow transition-all ${
-                  selectedImages.includes(image.id) ? 'ring-2 ring-primary' : ''
-                }`}
-              >
-                <figure className="relative group">
-                  <img
-                    src={image.thumbnailUrl || image.url || image.fileUrl}
-                    alt={image.name}
-                    className="w-full h-40 object-cover cursor-pointer"
-                    onClick={() => handlePreview(image)}
-                  />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handlePreview(image)}
-                      className="btn btn-ghost btn-circle btn-sm text-white"
-                    >
-                      <Eye size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDownload(image)}
-                      className="btn btn-ghost btn-circle btn-sm text-white"
-                    >
-                      <Download size={18} />
-                    </button>
-                  </div>
-                  <label className="absolute top-2 left-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-primary checkbox-sm"
-                      checked={selectedImages.includes(image.id)}
-                      onChange={() => handleSelectImage(image.id)}
-                    />
-                  </label>
-                </figure>
-                <div className="card-body p-3">
-                  <p className="font-medium truncate" title={image.name}>
-                    {image.name}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-base-content/50">
-                    <span>{t('images.preview.uploadedBy')} {image.uploaderName}</span>
-                  </div>
-                  {image.category && (
-                    <div className="badge badge-outline badge-sm mt-1">
-                      {image.category.name}
-                    </div>
-                  )}
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {image.tags?.slice(0, 3).map((tag) => (
-                      <span key={tag.id} className="badge badge-ghost badge-xs">
-                        {tag.name}
-                      </span>
-                    ))}
-                    {image.tags?.length > 3 && (
-                      <span className="badge badge-ghost badge-xs">
-                        +{image.tags.length - 3}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-base-content/50 mt-1">
-                    {new Date(image.createdAt || image.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ImageGrid
+            images={images}
+            onImagesChange={setImages}
+            onPreview={handlePreview}
+            onDownload={handleDownload}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            emptyMessage={t('images.list.noImages')}
+          />
 
           {pagination.totalPages > 1 && (
             <div className="flex justify-center mt-6">
@@ -530,16 +396,6 @@ function ImageManagement() {
           </div>
           <div className="modal-backdrop" onClick={() => setShowUploadModal(false)} />
         </div>
-      )}
-
-      {showPreviewModal && previewImage && (
-        <ImagePreviewModal
-          image={previewImage}
-          onClose={() => setShowPreviewModal(false)}
-          onDownload={handleDownload}
-          onEdit={(img) => { setShowPreviewModal(false); handleEdit(img); }}
-          onDelete={(id) => { setShowPreviewModal(false); handleDelete(id); }}
-        />
       )}
 
       {showEditModal && editImage && (

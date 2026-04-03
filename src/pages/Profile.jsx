@@ -21,6 +21,11 @@ function Profile() {
   const [slugSuccess, setSlugSuccess] = useState('');
   const [slugError, setSlugError] = useState('');
   const [isUpdatingSlug, setIsUpdatingSlug] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [emailSuccess, setEmailSuccess] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [showTokenModal, setShowTokenModal] = useState(false);
@@ -170,6 +175,36 @@ function Profile() {
     }
   };
 
+  const handleEmailUpdate = async (e) => {
+    e.preventDefault();
+    setEmailError('');
+    setEmailSuccess('');
+
+    if (!newEmail.trim()) {
+      setEmailError(t('profile.email.invalidEmail'));
+      return;
+    }
+
+    if (!emailPassword) {
+      setEmailError(t('profile.email.enterPassword'));
+      return;
+    }
+
+    setIsUpdatingEmail(true);
+
+    try {
+      await authService.changeEmail(newEmail, emailPassword);
+      setEmailSuccess(t('profile.email.updateSuccess'));
+      setNewEmail('');
+      setEmailPassword('');
+      fetchCurrentUser();
+    } catch (err) {
+      setEmailError(err.response?.data?.message || t('profile.email.updateFailed'));
+    } finally {
+      setIsUpdatingEmail(false);
+    }
+  };
+
   return (
     <div className="max-w-2xl">
       <h1 className="text-2xl font-bold mb-6">{t('profile.title')}</h1>
@@ -183,6 +218,38 @@ function Profile() {
             <p><span className="font-semibold">{t('profile.info.role')}:</span> {user?.role || 'user'}</p>
             <p><span className="font-semibold">{t('profile.info.profileUrl')}:</span> /u/{user?.slug || user?.id}</p>
           </div>
+          <div className="divider">{t('profile.email.title')}</div>
+          <form onSubmit={handleEmailUpdate}>
+            <div className="form-control mb-2">
+              <label className="label">
+                <span className="label-text">{t('profile.email.newEmail')}</span>
+              </label>
+              <input
+                type="email"
+                className="input input-bordered"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder={t('profile.email.newEmailPlaceholder')}
+              />
+            </div>
+            <div className="form-control mb-2">
+              <label className="label">
+                <span className="label-text">{t('profile.email.password')}</span>
+              </label>
+              <input
+                type="password"
+                className="input input-bordered"
+                value={emailPassword}
+                onChange={(e) => setEmailPassword(e.target.value)}
+                placeholder={t('profile.email.passwordPlaceholder')}
+              />
+            </div>
+            {emailSuccess && <div className="alert alert-success mb-2"><span>{emailSuccess}</span></div>}
+            {emailError && <div className="alert alert-error mb-2"><span>{emailError}</span></div>}
+            <button type="submit" className="btn btn-primary btn-sm" disabled={isUpdatingEmail}>
+              {isUpdatingEmail ? <span className="loading loading-spinner"></span> : t('profile.email.updateButton')}
+            </button>
+          </form>
         </div>
       </div>
 
