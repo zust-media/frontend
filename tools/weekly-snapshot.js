@@ -91,22 +91,18 @@ function generateNextSnapshotVersion() {
 
 /**
  * 获取当前周快照的基础标签
- * 逻辑：
- * 1. 优先查找上一个周快照标签（不管是不是本周的）
- * 2. 如果没有周快照，则查找最近的正式 release 标签 (v*)
+ * 逻辑：获取最新发布的任何类型的 tag（无论是 Pre Release、Release 还是每周快照）
  */
 function getBaseTag() {
-  // 先查找所有周快照标签
-  const weeklyTags = getWeeklySnapshotTags();
+  // 获取所有标签，按创建时间倒序排列
+  const allTags = callCommand('git tag -l --sort=-creatordate').split('\n').filter(Boolean);
   
-  // 如果有周快照，返回最后一个
-  if (weeklyTags.length > 0) {
-    return weeklyTags[weeklyTags.length - 1];
+  // 返回最新的标签（如果有）
+  if (allTags.length > 0) {
+    return allTags[0];
   }
   
-  // 如果没有周快照，查找最近的正式 release
-  const releaseTags = callCommand('git tag -l "v*" --sort=-creatordate').split('\n').filter(Boolean);
-  return releaseTags[0] || null;
+  return null;
 }
 
 /**
