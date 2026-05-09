@@ -5,6 +5,12 @@ import toast from 'react-hot-toast';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
+function roleLabel(role) {
+  if (role === 'owner') return '拥有者';
+  if (role === 'admin') return '管理员';
+  return '成员';
+}
+
 export default function GalleryListPage() {
   const { user } = useAuth();
   const [galleries, setGalleries] = useState([]);
@@ -147,6 +153,10 @@ export default function GalleryListPage() {
                     <h2 className="card-title text-base truncate flex items-center gap-2">
                       <FiFolder size={16} className="text-primary shrink-0" />
                       {g.name}
+                      {g.is_archived ? <span className="badge badge-warning badge-xs">已归档</span> : null}
+                      {g.my_role && g.my_role !== 'owner' && (
+                        <span className="badge badge-xs opacity-60">{roleLabel(g.my_role)}</span>
+                      )}
                     </h2>
                     {g.description && (
                       <p className="text-sm text-base-content/50 mt-1 line-clamp-2">{g.description}</p>

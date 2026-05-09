@@ -126,7 +126,13 @@ export default function GalleryPage() {
           return next;
         });
         toast.success('已添加到喜欢');
-      }).catch(() => {});
+      }).catch((err) => {
+        if (err.message?.code === 'no_default_gallery' || err.message?.includes('请先在设置中选择')) {
+          toast.error('请先在设置中选择一个喜欢文件夹', { duration: 4000 });
+        } else {
+          toast.error('添加喜欢失败');
+        }
+      });
     }
   }, [user]);
 
@@ -144,7 +150,11 @@ export default function GalleryPage() {
         return next;
       });
     } catch (err) {
-      toast.error(err.message || '操作失败');
+      if (err.message?.code === 'no_default_gallery' || err.message?.includes('请先在设置中选择')) {
+        toast.error(<span>请先在<a href="/settings" className="underline">设置页面</a>选择一个喜欢文件夹</span>, { duration: 4000 });
+      } else {
+        toast.error(err.message || '操作失败');
+      }
     }
   }, [user, navigate, location]);
 

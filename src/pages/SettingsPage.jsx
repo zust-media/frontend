@@ -140,13 +140,17 @@ export default function SettingsPage() {
                 value={defaultGalleryUuid}
                 onChange={(e) => setDefaultGalleryUuid(e.target.value)}
               >
-                <option value="">选择默认喜欢文件夹</option>
+                <option value="">{galleries.length === 0 ? '无' : '选择默认喜欢文件夹'}</option>
                 {galleries.map((g) => (
                   <option key={g.uuid} value={g.uuid}>{g.name}</option>
                 ))}
               </select>
               <p className="fieldset-label text-base-content/40">
-                {defaultGalleryUuid ? '点击爱心将自动添加到该文件夹' : '未设置时点击爱心将自动创建'}
+                {galleries.length === 0
+                  ? '你还没有照片夹，请先在照片夹页面创建'
+                  : defaultGalleryUuid
+                    ? '点击爱心将自动添加到该文件夹'
+                    : '选择后点击爱心将自动添加到所选文件夹'}
               </p>
             </fieldset>
             <button

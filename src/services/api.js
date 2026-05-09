@@ -374,4 +374,37 @@ export const api = {
       body: JSON.stringify({ gallery_uuid: galleryUuid }),
     });
   },
+
+  // Gallery Collaborators
+  getGalleryCollaborators(uuid) {
+    return request(`/galleries/${uuid}/collaborators`);
+  },
+
+  addGalleryCollaborator(uuid, userUuid, role) {
+    return request(`/galleries/${uuid}/collaborators`, {
+      method: 'POST',
+      body: JSON.stringify({ user_uuid: userUuid, role }),
+    });
+  },
+
+  removeGalleryCollaborator(uuid, collabUuid) {
+    return request(`/galleries/${uuid}/collaborators/${collabUuid}`, {
+      method: 'DELETE',
+    });
+  },
+
+  archiveGallery(uuid) {
+    return request(`/galleries/${uuid}/archive`, { method: 'POST' });
+  },
+
+  unarchiveGallery(uuid) {
+    return request(`/galleries/${uuid}/unarchive`, { method: 'POST' });
+  },
+
+  transferGallery(uuid, targetUserUuid) {
+    return request(`/galleries/${uuid}/transfer`, {
+      method: 'POST',
+      body: JSON.stringify({ target_user_uuid: targetUserUuid }),
+    });
+  },
 };

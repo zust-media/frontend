@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   FiFolder, FiDownload, FiTrash2, FiEdit3, FiSave, FiX, FiCheckSquare,
-  FiChevronLeft, FiChevronRight, FiArrowLeft,
+  FiChevronLeft, FiChevronRight, FiArrowLeft, FiUsers, FiUserPlus,
+  FiArchive, FiRefreshCw,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
@@ -18,6 +19,7 @@ export default function GalleryDetailPage() {
 
   const [gallery, setGallery] = useState(null);
   const [images, setImages] = useState([]);
+  const [collaborators, setCollaborators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -36,15 +38,25 @@ export default function GalleryDetailPage() {
 
   const [lightboxImage, setLightboxImage] = useState(null);
 
-  const isOwner = gallery && user && (
-    user.uuid === gallery.creator_uuid
-  );
+  const [showCollabPanel, setShowCollabPanel] = useState(false);
+  const [collabInput, setCollabInput] = useState('');
+  const [collabRole, setCollabRole] = useState('user');
+  const [collabSaving, setCollabSaving] = useState(false);
+
+  const [showTransferPanel, setShowTransferPanel] = useState(false);
+  const [transferTarget, setTransferTarget] = useState('');
+  const [transferring, setTransferring] = useState(false);
+
+  const myRole = gallery?.my_role;
+  const isOwner = myRole === 'owner';
+  const canManage = isOwner || myRole === 'admin';
 
   const fetchGallery = useCallback(async () => {
     try {
       const data = await api.getGallery(uuid, { page, limit: 20 });
       setGallery(data.gallery);
       setImages(data.images || []);
+      setCollaborators(data.collaborators || []);
       setTotalPages(data.pagination.total_pages);
       setEditName(data.gallery.name);
       setEditDesc(data.gallery.description || '');
@@ -67,10 +79,10 @@ export default function GalleryDetailPage() {
     }
     setSaving(true);
     try {
-      await api.updateGallery(uuid, { name: editName.trim(), description: editDesc.trim() });
+      const data = await api.updateGallery(uuid, { name: editName.trim(), description: editDesc.trim() });
       toast.success('已保存');
       setEditMode(false);
-      setGallery((prev) => ({ ...prev, name: editName.trim(), description: editDesc.trim() }));
+      setGallery((prev) => ({ ...prev, ...data.gallery }));
     } catch (err) {
       toast.error(err.message || '保存失败');
     } finally {
@@ -91,6 +103,82 @@ export default function GalleryDetailPage() {
       toast.error(err.message || '移除失败');
     } finally {
       setRemoving(false);
+    }
+  };
+
+  const handleAddCollab = async () => {
+    const targetUuid = collabInput.trim();
+    if (!targetUuid) { toast.error('请输入用户UUID'); return; }
+    setCollabSaving(true);
+    try {
+      await api.addGalleryCollaborator(uuid, targetUuid, collabRole);
+      toast.success('已添加协同用户');
+      setCollabInput('');
+      fetchGallery();
+    } catch (err) {
+      toast.error(err.message || '添加失败');
+    } finally {
+      setCollabSaving(false);
+    }
+  };
+
+  const handleRemoveCollab = async (collabUuid) => {
+    if (!window.confirm('确定要移除此协同用户吗？')) return;
+    try {
+      await api.removeGalleryCollaborator(uuid, collabUuid);
+      toast.success('已移除');
+      fetchGallery();
+    } catch (err) {
+      toast.error(err.message || '移除失败');
+    }
+  };
+
+  const handleArchive = async () => {
+    if (!window.confirm('确定要归档此照片夹吗？归档后将无法添加或移除图片。')) return;
+    try {
+      const data = await api.archiveGallery(uuid);
+      setGallery(data.gallery);
+      toast.success('已归档');
+    } catch (err) {
+      toast.error(err.message || '归档失败');
+    }
+  };
+
+  const handleUnarchive = async () => {
+    try {
+      const data = await api.unarchiveGallery(uuid);
+      setGallery(data.gallery);
+      toast.success('已取消归档');
+    } catch (err) {
+      toast.error(err.message || '取消失败');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('确定要删除此照片夹吗？此操作不可撤销。')) return;
+    try {
+      await api.deleteGallery(uuid);
+      toast.success('已删除');
+      navigate('/galleries');
+    } catch (err) {
+      toast.error(err.message || '删除失败');
+    }
+  };
+
+  const handleTransfer = async () => {
+    const targetUuid = transferTarget.trim();
+    if (!targetUuid) { toast.error('请输入目标用户UUID'); return; }
+    if (!window.confirm('确定要转移此照片夹给该用户吗？你将成为普通成员。')) return;
+    setTransferring(true);
+    try {
+      await api.transferGallery(uuid, targetUuid);
+      toast.success('所有权已转移');
+      setShowTransferPanel(false);
+      fetchGallery();
+    } catch (err) {
+      toast.error(err.message || '转移失败');
+    } finally {
+      setTransferring(false);
     }
   };
 
@@ -132,6 +220,12 @@ export default function GalleryDetailPage() {
 
   if (!gallery) return null;
 
+  const roleLabel = (role) => {
+    if (role === 'owner') return '拥有者';
+    if (role === 'admin') return '管理员';
+    return '成员';
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
@@ -172,6 +266,14 @@ export default function GalleryDetailPage() {
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                   <FiFolder className="text-primary" />
                   {gallery.name}
+                  {gallery.is_archived ? (
+                    <span className="badge badge-warning badge-sm">已归档</span>
+                  ) : null}
+                  {myRole && (
+                    <span className={`badge badge-sm ${isOwner ? 'badge-primary' : canManage ? 'badge-secondary' : 'badge-ghost'}`}>
+                      {roleLabel(myRole)}
+                    </span>
+                  )}
                 </h1>
                 {gallery.description && (
                   <p className="text-base-content/60 mt-1">{gallery.description}</p>
@@ -181,9 +283,34 @@ export default function GalleryDetailPage() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            {isOwner && !editMode && (
+            {canManage && !editMode && (
               <button className="btn btn-ghost btn-sm gap-1" onClick={() => { setEditMode(true); setEditName(gallery.name); setEditDesc(gallery.description || ''); }}>
                 <FiEdit3 size={14} /> 编辑
+              </button>
+            )}
+            {canManage && (
+              <button
+                className={`btn btn-ghost btn-sm gap-1 ${showCollabPanel ? 'btn-active' : ''}`}
+                onClick={() => setShowCollabPanel(!showCollabPanel)}
+              >
+                <FiUsers size={14} /> 协同
+              </button>
+            )}
+            {isOwner && (
+              <button
+                className="btn btn-ghost btn-sm gap-1"
+                onClick={gallery.is_archived ? handleUnarchive : handleArchive}
+              >
+                {gallery.is_archived ? <FiRefreshCw size={14} /> : <FiArchive size={14} />}
+                {gallery.is_archived ? '取消归档' : '归档'}
+              </button>
+            )}
+            {isOwner && (
+              <button
+                className={`btn btn-ghost btn-sm gap-1 ${showTransferPanel ? 'btn-active' : ''}`}
+                onClick={() => setShowTransferPanel(!showTransferPanel)}
+              >
+                <FiUserPlus size={14} /> 转移
               </button>
             )}
             <button
@@ -197,11 +324,72 @@ export default function GalleryDetailPage() {
               <FiDownload size={14} />
               下载全部
             </button>
+            {isOwner && (
+              <button className="btn btn-error btn-sm gap-1" onClick={handleDelete}>
+                <FiTrash2 size={14} /> 删除
+              </button>
+            )}
           </div>
         </div>
+
+        {showCollabPanel && canManage && (
+          <div className="card bg-base-200 mt-4 p-4">
+            <h3 className="font-medium mb-2 flex items-center gap-2"><FiUsers size={16} /> 协同用户</h3>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {collaborators.map((c) => (
+                <div key={c.user_uuid} className="badge badge-lg gap-1">
+                  <span className="text-xs font-mono">{c.user_uuid.substring(0, 8)}...</span>
+                  <span className="text-xs opacity-70">({roleLabel(c.role)})</span>
+                  {c.role !== 'owner' && canManage && (
+                    <button className="btn btn-ghost btn-xs" onClick={() => handleRemoveCollab(c.user_uuid)}>
+                      <FiX size={10} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                className="input input-sm input-bordered flex-1"
+                placeholder="用户UUID"
+                value={collabInput}
+                onChange={(e) => setCollabInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleAddCollab(); }}
+              />
+              <select className="select select-sm select-bordered" value={collabRole} onChange={(e) => setCollabRole(e.target.value)}>
+                <option value="user">成员</option>
+                <option value="admin">管理员</option>
+              </select>
+              <button className="btn btn-sm btn-primary" onClick={handleAddCollab} disabled={collabSaving}>
+                {collabSaving ? <span className="loading loading-spinner loading-xs"></span> : '添加'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showTransferPanel && isOwner && (
+          <div className="card bg-base-200 mt-4 p-4">
+            <h3 className="font-medium mb-2">转移所有权</h3>
+            <p className="text-xs text-base-content/60 mb-2">转移后你将变为普通成员，无法撤销此操作</p>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                className="input input-sm input-bordered flex-1"
+                placeholder="目标用户UUID"
+                value={transferTarget}
+                onChange={(e) => setTransferTarget(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleTransfer(); }}
+              />
+              <button className="btn btn-sm btn-warning" onClick={handleTransfer} disabled={transferring}>
+                {transferring ? <span className="loading loading-spinner loading-xs"></span> : '确认转移'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {isOwner && images.length > 0 && (
+      {!gallery.is_archived && myRole && images.length > 0 && (
         <div className="flex items-center gap-2 mb-4">
           <button
             className={`btn btn-xs gap-1 ${selectMode ? 'btn-primary' : 'btn-ghost'}`}
@@ -236,6 +424,13 @@ export default function GalleryDetailPage() {
               </button>
             </>
           )}
+        </div>
+      )}
+
+      {gallery.is_archived && (
+        <div className="alert alert-warning mb-4">
+          <FiArchive />
+          <span>此照片夹已归档，无法添加或移除图片</span>
         </div>
       )}
 
