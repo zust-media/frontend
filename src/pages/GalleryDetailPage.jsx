@@ -507,7 +507,7 @@ export default function GalleryDetailPage() {
                 image={image}
                 onImageClick={openLightbox}
                 onEdit={myRole ? setEditingImage : undefined}
-                onDelete={myRole ? handleRemoveSingle : undefined}
+                onRemove={myRole ? handleRemoveSingle : undefined}
                 selectMode={selectMode}
                 selected={selectedUuids.has(image.uuid)}
                 onToggleSelect={toggleSelect}

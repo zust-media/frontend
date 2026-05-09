@@ -91,6 +91,18 @@ export default function CategoryPage() {
 
   const imageUuids = images.map((img) => img.uuid).filter(Boolean);
 
+  const handleRemoveFromCategory = async (image) => {
+    if (!user) return;
+    if (!window.confirm(`确定要将「${image.title || image.original_name}」移出此分类吗？`)) return;
+    try {
+      await api.updateImage(image.id, { category_id: undefined });
+      toast.success('已移出此分类');
+      fetchCategory();
+    } catch (err) {
+      toast.error(err.message || '移除失败');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="breadcrumbs text-sm">
@@ -126,6 +138,8 @@ export default function CategoryPage() {
                 key={img.id}
                 image={img}
                 onOpen={() => setLightboxImage(img)}
+                onRemove={user ? handleRemoveFromCategory : undefined}
+                showActions={!!user}
               />
             ))}
           </div>

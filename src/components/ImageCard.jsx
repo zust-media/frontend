@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiHeart, FiDownload, FiZoomIn, FiEdit3, FiTrash2, FiFolder } from 'react-icons/fi';
+import { FiHeart, FiDownload, FiZoomIn, FiEdit3, FiTrash2, FiMinusCircle, FiFolder } from 'react-icons/fi';
 import { useMetadata } from '../context/MetadataContext';
 import TagBadge from './TagBadge';
 import UserDisplay from './UserDisplay';
@@ -18,6 +18,7 @@ export default function ImageCard({
   onImageClick,
   onDelete,
   onEdit,
+  onRemove,
   onDownload,
   onLike,
   liked,
@@ -119,6 +120,15 @@ export default function ImageCard({
                 title="编辑"
               >
                 <FiEdit3 size={12} />
+              </button>
+            )}
+            {showActions && onRemove && (
+              <button
+                className="btn btn-ghost btn-xs btn-square text-warning"
+                onClick={(e) => { e.stopPropagation(); onRemove(image); }}
+                title="移出"
+              >
+                <FiMinusCircle size={12} />
               </button>
             )}
             {showActions && onDelete && (

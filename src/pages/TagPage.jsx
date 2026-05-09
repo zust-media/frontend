@@ -86,6 +86,20 @@ export default function TagPage() {
 
   const imageUuids = images.map((img) => img.uuid).filter(Boolean);
 
+  const handleRemoveFromTag = async (image) => {
+    const tagId = tag?.id;
+    if (!user || !tagId) return;
+    if (!window.confirm(`确定要将「${image.title || image.original_name}」从此标签移除吗？`)) return;
+    const newTags = (Array.isArray(image.tags) ? image.tags : []).filter((t) => t !== tagId);
+    try {
+      await api.updateImage(image.id, { tags: newTags });
+      toast.success('已移除此标签');
+      fetchTag();
+    } catch (err) {
+      toast.error(err.message || '移除失败');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="breadcrumbs text-sm">
@@ -121,6 +135,8 @@ export default function TagPage() {
                 key={img.id}
                 image={img}
                 onOpen={() => setLightboxImage(img)}
+                onRemove={user ? handleRemoveFromTag : undefined}
+                showActions={!!user}
               />
             ))}
           </div>
