@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiImage, FiLogOut, FiShield, FiSettings, FiTag, FiFolder, FiMenu, FiUploadCloud } from 'react-icons/fi';
+import { FiImage, FiLogOut, FiShield, FiSettings, FiTag, FiFolder, FiMenu, FiUploadCloud, FiFolderPlus } from 'react-icons/fi';
 import ConnectionStatus from './ConnectionStatus';
 import ThemeSwitcher from './ThemeSwitcher';
 
@@ -32,6 +32,12 @@ export default function Navbar({ drawerId }) {
             <FiTag size={14} />
             标签
           </Link>
+          {user && (
+            <Link to="/galleries" className="btn btn-ghost btn-sm gap-1 px-2 whitespace-nowrap">
+              <FiFolderPlus size={14} />
+              照片夹
+            </Link>
+          )}
         </div>
       </div>
       <div className="flex-none flex items-center gap-1 ml-auto">

@@ -9,6 +9,7 @@ import ImageCard from '../components/ImageCard';
 import ImageEditor from '../components/ImageEditor';
 import Lightbox from '../components/Lightbox';
 import BatchEditModal from '../components/BatchEditModal';
+import AddToGalleryModal from '../components/AddToGalleryModal';
 import MultiSelectBar from '../components/MultiSelectBar';
 import useDevTools from '../hooks/useDevTools';
 
@@ -39,6 +40,7 @@ export default function GalleryPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [showBatchEdit, setShowBatchEdit] = useState(false);
+  const [showAddToGallery, setShowAddToGallery] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
   const [selectedTags, setSelectedTags] = useState([]);
@@ -423,6 +425,7 @@ export default function GalleryPage() {
           count={selectedIds.size}
           onSelectAll={selectAll}
           onDeselectAll={deselectAll}
+          onAddToGallery={() => setShowAddToGallery(true)}
           onEdit={() => setShowBatchEdit(true)}
           onDelete={handleBatchDelete}
           onClose={toggleSelectMode}
@@ -451,6 +454,17 @@ export default function GalleryPage() {
           ids={[...selectedIds]}
           onClose={() => setShowBatchEdit(false)}
           onSaved={refresh}
+        />
+      )}
+
+      {showAddToGallery && (
+        <AddToGalleryModal
+          imageUuids={images.filter((img) => selectedIds.has(img.id)).map((img) => img.uuid).filter(Boolean)}
+          onClose={() => {
+            setShowAddToGallery(false);
+            setSelectMode(false);
+            setSelectedIds(new Set());
+          }}
         />
       )}
     </>

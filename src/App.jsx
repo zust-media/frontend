@@ -20,7 +20,9 @@ import SettingsPage from './pages/SettingsPage';
 import TagPage from './pages/TagPage';
 import CategoryPage from './pages/CategoryPage';
 import UploadPage from './pages/UploadPage';
-import { FiImage, FiFolder, FiTag, FiHome, FiSettings, FiShield, FiLogOut, FiLogIn, FiUserPlus, FiX, FiCopy, FiUploadCloud, FiActivity } from 'react-icons/fi';
+import GalleryListPage from './pages/GalleryListPage';
+import GalleryDetailPage from './pages/GalleryDetailPage';
+import { FiImage, FiFolder, FiTag, FiHome, FiSettings, FiShield, FiLogOut, FiLogIn, FiUserPlus, FiX, FiCopy, FiUploadCloud, FiActivity, FiFolderPlus } from 'react-icons/fi';
 
 const DRAWER_ID = 'nav-drawer';
 
@@ -70,6 +72,14 @@ function MobileDrawer() {
               标签
             </Link>
           </li>
+          {user && (
+            <li>
+              <Link to="/galleries" onClick={closeDrawer} className="flex items-center gap-3">
+                <FiFolderPlus size={18} />
+                照片夹
+              </Link>
+            </li>
+          )}
           {user && (
             <li>
               <Link to="/upload" onClick={closeDrawer} className="flex items-center gap-3">
@@ -210,11 +220,24 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/upload"
+      <Route path="/upload"
         element={
           <ProtectedRoute>
             <UploadPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/galleries"
+        element={
+          <ProtectedRoute>
+            <GalleryListPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/gallery/:uuid"
+        element={
+          <ProtectedRoute>
+            <GalleryDetailPage />
           </ProtectedRoute>
         }
       />

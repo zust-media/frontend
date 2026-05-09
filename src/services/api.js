@@ -275,4 +275,52 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     return request(`/admin/logs?${query}`);
   },
+
+  // Galleries
+  getGalleries() {
+    return request('/galleries');
+  },
+
+  createGallery(data) {
+    return request('/galleries', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getGallery(uuid, params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return request(`/galleries/${uuid}?${query}`);
+  },
+
+  updateGallery(uuid, data) {
+    return request(`/galleries/${uuid}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteGallery(uuid) {
+    return request(`/galleries/${uuid}`, {
+      method: 'DELETE',
+    });
+  },
+
+  addImagesToGallery(uuid, imageUuids) {
+    return request(`/galleries/${uuid}/images`, {
+      method: 'POST',
+      body: JSON.stringify({ image_uuids: imageUuids }),
+    });
+  },
+
+  removeImagesFromGallery(uuid, imageUuids) {
+    return request(`/galleries/${uuid}/images`, {
+      method: 'DELETE',
+      body: JSON.stringify({ image_uuids: imageUuids }),
+    });
+  },
+
+  getGalleryDownloadUrl(uuid) {
+    return `${API_BASE}/galleries/${uuid}/download`;
+  },
 };
