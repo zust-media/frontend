@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { FiX, FiDownload, FiCamera, FiInfo, FiMaximize, FiClock, FiMapPin, FiAperture, FiZap, FiCopy, FiLink, FiCheck, FiTool } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { FiX, FiDownload, FiCamera, FiInfo, FiMaximize, FiClock, FiMapPin, FiAperture, FiZap, FiCopy, FiLink, FiCheck, FiTool, FiFolder } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useMetadata } from '../context/MetadataContext';
 import TagBadge from './TagBadge';
 import UserDisplay from './UserDisplay';
 
@@ -194,6 +196,7 @@ function DevLinkPanel({ image, visible }) {
 
 export default function Lightbox({ image, devMode, onClose }) {
   const { user } = useAuth();
+  const { getCategoryName, categoryMap } = useMetadata();
   const [loadedImageId, setLoadedImageId] = useState(null);
   const [devPanelVisible, setDevPanelVisible] = useState(false);
   const [imgStyle, setImgStyle] = useState({});
@@ -346,6 +349,25 @@ export default function Lightbox({ image, devMode, onClose }) {
               </div>
               <div className="text-xs text-base-content/50 mt-2 space-y-0.5">
                 <div className="flex items-center gap-1">上传者: <UserDisplay uuid={image.uploader_uuid} className="text-xs" /></div>
+                {image.category_id && (
+                  <div className="flex items-center gap-1">
+                    分类:{' '}
+                    {categoryMap[image.category_id]?.slug ? (
+                      <Link
+                        to={`/category/${categoryMap[image.category_id].slug}`}
+                        className="flex items-center gap-1 text-primary hover:underline"
+                      >
+                        <FiFolder size={10} />
+                        {getCategoryName(image.category_id)}
+                      </Link>
+                    ) : (
+                      <span className="flex items-center gap-1">
+                        <FiFolder size={10} />
+                        {getCategoryName(image.category_id)}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <div>文件名: {image.original_name}</div>
                 <div>类型: {image.mime_type}</div>
                 <div>大小: {formatSize(image.file_size)}</div>

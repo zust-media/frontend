@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FiHeart, FiDownload, FiZoomIn, FiEdit3, FiTrash2, FiFolder } from 'react-icons/fi';
 import { useMetadata } from '../context/MetadataContext';
 import { api } from '../services/api';
@@ -19,7 +20,9 @@ export default function ImageCard({
   onToggleSelect,
 }) {
   const [imgError, setImgError] = useState(false);
-  const { getTagName, getCategoryName } = useMetadata();
+  const { getTagName, getCategoryName, categoryMap } = useMetadata();
+
+  const categorySlug = image.category_id ? categoryMap[image.category_id]?.slug : null;
 
   const handlePreview = () => {
     if (selectMode && onToggleSelect) {
@@ -86,10 +89,21 @@ export default function ImageCard({
           <div className="flex items-center gap-2 truncate">
             <UserDisplay uuid={image.uploader_uuid} />
             {image.category_id && (
-              <span className="flex items-center gap-1 shrink-0 text-base-content/40">
-                <FiFolder size={10} />
-                {getCategoryName(image.category_id)}
-              </span>
+              categorySlug ? (
+                <Link
+                  to={`/category/${categorySlug}`}
+                  className="flex items-center gap-1 shrink-0 text-base-content/40 hover:text-primary transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FiFolder size={10} />
+                  {getCategoryName(image.category_id)}
+                </Link>
+              ) : (
+                <span className="flex items-center gap-1 shrink-0 text-base-content/40">
+                  <FiFolder size={10} />
+                  {getCategoryName(image.category_id)}
+                </span>
+              )
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">

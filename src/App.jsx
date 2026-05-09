@@ -404,7 +404,7 @@ export default function App() {
                 <AppRoutes />
               </main>
               <footer className="footer footer-center p-4 text-base-content/40 text-sm">
-                <div>ZustMedia 图库系统 &copy; {new Date().getFullYear()}</div>
+                <div>{import.meta.env.VITE_FOOTER_TEXT || `ZustMedia 图库系统 © ${new Date().getFullYear()}`}</div>
               </footer>
             </div>
             <MobileDrawer />
