@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useMetadata } from '../context/MetadataContext';
 import { FiShield, FiArrowLeft, FiTrash2, FiEdit3, FiPlus } from 'react-icons/fi';
 import { Link, Navigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -7,6 +8,7 @@ import { api } from '../services/api';
 
 export default function AdminCategoriesPage() {
   const { user, isAdmin } = useAuth();
+  const { refresh: refreshMetadata } = useMetadata();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +29,9 @@ export default function AdminCategoriesPage() {
     if (!window.confirm(`确定要删除分类「${cat.name}」吗？其中的图片将变为无分类。`)) return;
     try {
       await api.deleteCategory(cat.id);
-      toast.success('分类已删除'); fetchCategories();
+      toast.success('分类已删除');
+      await refreshMetadata();
+      fetchCategories();
     } catch (err) { toast.error(err.message || '删除失败'); }
   };
 

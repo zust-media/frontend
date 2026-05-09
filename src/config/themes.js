@@ -8,7 +8,10 @@
 
 const THEMES = [
   { id: 'whitt', name: '浅色', icon: '☀️', description: '简洁明亮的默认主题' },
-  { id: 'darky', name: '深色', icon: '🌙', description: '护眼舒适的深色主题' }
+  { id: 'darky', name: '深色', icon: '🌙', description: '护眼舒适的深色主题' },
+  { id: 'winter', name: '冬天', icon: '🌙', description: '护眼舒适的深色主题' },
+  { id: 'caramellatte', name: 'Caramellatte', icon: '🌙', description: '护眼舒适的深色主题' },
+  { id: 'retro', name: 'retro', icon: '🌙', description: '护眼舒适的深色主题' }
 ];
 
 const DEFAULT_THEME = 'light';

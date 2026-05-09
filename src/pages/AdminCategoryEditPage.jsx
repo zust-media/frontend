@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useMetadata } from '../context/MetadataContext';
 import { FiFolder, FiArrowLeft, FiSave, FiTrash2 } from 'react-icons/fi';
 import { Link, Navigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -9,6 +10,7 @@ import { api } from '../services/api';
 export default function AdminCategoryEditPage() {
   const { id } = useParams();
   const { user, isAdmin } = useAuth();
+  const { refresh: refreshMetadata } = useMetadata();
   const navigate = useNavigate();
   const isNew = !id || id === 'new' || isNaN(parseInt(id));
 
@@ -51,6 +53,7 @@ export default function AdminCategoryEditPage() {
         await api.updateCategory(parseInt(id), { name: n, slug: slug.trim(), description: description.trim() });
         toast.success('分类已更新');
       }
+      await refreshMetadata();
       navigate('/admin/categories', { replace: true });
     } catch (err) {
       toast.error(err.message || '保存失败');
@@ -63,6 +66,7 @@ export default function AdminCategoryEditPage() {
     try {
       await api.deleteCategory(parseInt(id));
       toast.success('分类已删除');
+      await refreshMetadata();
       navigate('/admin/categories', { replace: true });
     } catch (err) { toast.error(err.message || '删除失败'); }
   };

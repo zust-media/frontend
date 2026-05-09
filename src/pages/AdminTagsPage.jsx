@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useMetadata } from '../context/MetadataContext';
 import { FiShield, FiArrowLeft, FiTrash2, FiEdit3, FiPlus } from 'react-icons/fi';
 import { Link, Navigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -7,6 +8,7 @@ import { api } from '../services/api';
 
 export default function AdminTagsPage() {
   const { user, isAdmin } = useAuth();
+  const { refresh: refreshMetadata } = useMetadata();
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +29,9 @@ export default function AdminTagsPage() {
     if (!window.confirm(`确定要删除标签「${tag.name}」吗？`)) return;
     try {
       await api.deleteTag(tag.id);
-      toast.success('标签已删除'); fetchTags();
+      toast.success('标签已删除');
+      await refreshMetadata();
+      fetchTags();
     } catch (err) { toast.error(err.message || '删除失败'); }
   };
 
