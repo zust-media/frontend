@@ -33,8 +33,8 @@ export default function GalleryDetailPage() {
 
   const [lightboxImage, setLightboxImage] = useState(null);
 
-  const isOwner = gallery && user && gallery.creator_uuid && (
-    user.uuid === gallery.creator_uuid || user.user_id === gallery.creator_uuid
+  const isOwner = gallery && user && (
+    user.uuid === gallery.creator_uuid
   );
 
   const fetchGallery = useCallback(async () => {
