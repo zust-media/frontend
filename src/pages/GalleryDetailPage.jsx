@@ -30,6 +30,7 @@ export default function GalleryDetailPage() {
   const [selectedUuids, setSelectedUuids] = useState(new Set());
   const [removing, setRemoving] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState('jpeg');
 
   const [lightboxImage, setLightboxImage] = useState(null);
 
@@ -95,7 +96,7 @@ export default function GalleryDetailPage() {
     setDownloading(true);
     try {
       const token = localStorage.getItem('token');
-      const resp = await fetch(api.getGalleryDownloadUrl(uuid), {
+      const resp = await fetch(api.getGalleryDownloadUrl(uuid, downloadFormat), {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!resp.ok) {
@@ -210,6 +211,15 @@ export default function GalleryDetailPage() {
                 <FiEdit3 size={14} /> 编辑
               </button>
             )}
+            <select
+              className="select select-sm select-bordered"
+              value={downloadFormat}
+              onChange={(e) => setDownloadFormat(e.target.value)}
+            >
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+            </select>
             <button
               className="btn btn-primary btn-sm gap-1"
               onClick={handleDownload}

@@ -1,6 +1,6 @@
-import { FiCheckSquare, FiTrash2, FiXCircle, FiEdit3, FiFolderPlus } from 'react-icons/fi';
+import { FiCheckSquare, FiTrash2, FiXCircle, FiEdit3, FiFolderPlus, FiDownload } from 'react-icons/fi';
 
-export default function MultiSelectBar({ count, onSelectAll, onDeselectAll, onEdit, onDelete, onAddToGallery, onClose }) {
+export default function MultiSelectBar({ count, onSelectAll, onDeselectAll, onEdit, onDelete, onAddToGallery, onDownload, onClose }) {
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
       <div className="flex items-center gap-3 bg-base-100 shadow-xl rounded-full px-5 py-3 border border-base-300">
@@ -14,6 +14,11 @@ export default function MultiSelectBar({ count, onSelectAll, onDeselectAll, onEd
         {onAddToGallery && (
           <button className="btn btn-sm btn-ghost gap-1" disabled={count === 0} onClick={onAddToGallery}>
             <FiFolderPlus size={14} /> 加入照片夹
+          </button>
+        )}
+        {onDownload && (
+          <button className="btn btn-sm btn-ghost gap-1" disabled={count === 0} onClick={onDownload}>
+            <FiDownload size={14} /> 下载
           </button>
         )}
         <button className="btn btn-sm btn-ghost gap-1" disabled={count === 0} onClick={onEdit}>
