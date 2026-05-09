@@ -19,6 +19,8 @@ export default function ImageCard({
   onDelete,
   onEdit,
   onDownload,
+  onLike,
+  liked,
   showActions,
   selectMode,
   selected,
@@ -128,7 +130,13 @@ export default function ImageCard({
                 <FiTrash2 size={12} />
               </button>
             )}
-            <FiHeart size={12} className="cursor-pointer hover:text-error transition-colors" />
+            <button
+              className={`btn btn-ghost btn-xs btn-square ${liked ? 'text-error' : ''}`}
+              onClick={(e) => { e.stopPropagation(); onLike?.(image); }}
+              title={liked ? '取消喜欢' : '喜欢'}
+            >
+              <FiHeart size={12} fill={liked ? 'currentColor' : 'none'} />
+            </button>
             {onDownload && (
               <button
                 className="btn btn-ghost btn-xs btn-square"

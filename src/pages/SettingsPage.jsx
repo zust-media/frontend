@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FiSave, FiUser, FiLink, FiCopy, FiCheck } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { FiSave, FiUser, FiLink, FiCopy, FiCheck, FiHeart } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -11,6 +11,15 @@ export default function SettingsPage() {
   const [bio, setBio] = useState(user?.bio || '');
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [galleries, setGalleries] = useState([]);
+  const [defaultGalleryUuid, setDefaultGalleryUuid] = useState('');
+  const [savingGallery, setSavingGallery] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    api.getGalleries().then(d => setGalleries(d.galleries || [])).catch(() => {});
+    api.getDefaultGallery().then(d => setDefaultGalleryUuid(d.gallery?.uuid || '')).catch(() => {});
+  }, [user]);
 
   const copyUuid = async () => {
     try {
@@ -113,6 +122,51 @@ export default function SettingsPage() {
               />
               <p className="fieldset-label text-base-content/40">{bio.length}/200</p>
             </fieldset>
+          </div>
+        </div>
+
+        <div className="card bg-base-100 shadow-md">
+          <div className="card-body">
+            <h2 className="card-title text-base flex items-center gap-2">
+              <FiHeart className="text-error" />
+              喜欢文件夹
+            </h2>
+            <p className="text-sm text-base-content/60">
+              点击图片上的爱心图标时，图片会自动加入此文件夹
+            </p>
+            <fieldset className="fieldset">
+              <select
+                className="select"
+                value={defaultGalleryUuid}
+                onChange={(e) => setDefaultGalleryUuid(e.target.value)}
+              >
+                <option value="">选择默认喜欢文件夹</option>
+                {galleries.map((g) => (
+                  <option key={g.uuid} value={g.uuid}>{g.name}</option>
+                ))}
+              </select>
+              <p className="fieldset-label text-base-content/40">
+                {defaultGalleryUuid ? '点击爱心将自动添加到该文件夹' : '未设置时点击爱心将自动创建'}
+              </p>
+            </fieldset>
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={async () => {
+                setSavingGallery(true);
+                try {
+                  await api.setDefaultGallery(defaultGalleryUuid);
+                  toast.success('默认文件夹已保存');
+                } catch (err) {
+                  toast.error(err.message || '保存失败');
+                } finally {
+                  setSavingGallery(false);
+                }
+              }}
+              disabled={savingGallery}
+            >
+              {savingGallery ? <span className="loading loading-spinner loading-xs"></span> : null}
+              保存喜欢文件夹
+            </button>
           </div>
         </div>
 

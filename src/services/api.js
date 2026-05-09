@@ -351,4 +351,27 @@ export const api = {
   batchDownloadUrl() {
     return `${API_BASE}/images/batch-download`;
   },
+
+  // Favorites / Like
+  toggleLike(imageUuid) {
+    return request('/galleries/like', {
+      method: 'POST',
+      body: JSON.stringify({ image_uuid: imageUuid }),
+    });
+  },
+
+  getLikedUuids() {
+    return request('/galleries/like/status');
+  },
+
+  getDefaultGallery() {
+    return request('/auth/default-gallery');
+  },
+
+  setDefaultGallery(galleryUuid) {
+    return request('/auth/default-gallery', {
+      method: 'PUT',
+      body: JSON.stringify({ gallery_uuid: galleryUuid }),
+    });
+  },
 };

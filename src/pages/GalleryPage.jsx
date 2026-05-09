@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { FiSearch, FiGrid, FiRefreshCw, FiChevronLeft, FiChevronRight, FiX, FiCheckSquare, FiFilter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
@@ -24,6 +24,8 @@ const SORT_OPTIONS = [
 
 export default function GalleryPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { tags: allTags, categories: allCategories, refresh: refreshMeta } = useMetadata();
   const [images, setImages] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -44,6 +46,7 @@ export default function GalleryPage() {
   const [showAddToGallery, setShowAddToGallery] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [downloadImageUuids, setDownloadImageUuids] = useState(null);
+  const [likedUuids, setLikedUuids] = useState(new Set());
   const [filterOpen, setFilterOpen] = useState(false);
 
   const [selectedTags, setSelectedTags] = useState([]);
@@ -106,6 +109,44 @@ export default function GalleryPage() {
       toast.error('图片不存在或已被删除');
     });
   }, [searchParams, lightboxImage]);
+
+  useEffect(() => {
+    if (!user) { setLikedUuids(new Set()); return; }
+    api.getLikedUuids().then(d => setLikedUuids(new Set(d.liked_uuids || []))).catch(() => {});
+  }, [user]);
+
+  useEffect(() => {
+    const pendingLike = sessionStorage.getItem('pending_like');
+    if (user && pendingLike) {
+      sessionStorage.removeItem('pending_like');
+      api.toggleLike(pendingLike).then(() => {
+        setLikedUuids(prev => {
+          const next = new Set(prev);
+          if (next.has(pendingLike)) next.delete(pendingLike); else next.add(pendingLike);
+          return next;
+        });
+        toast.success('已添加到喜欢');
+      }).catch(() => {});
+    }
+  }, [user]);
+
+  const handleLike = useCallback(async (image) => {
+    if (!user) {
+      sessionStorage.setItem('pending_like', image.uuid);
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`);
+      return;
+    }
+    try {
+      const data = await api.toggleLike(image.uuid);
+      setLikedUuids(prev => {
+        const next = new Set(prev);
+        if (data.liked) next.add(image.uuid); else next.delete(image.uuid);
+        return next;
+      });
+    } catch (err) {
+      toast.error(err.message || '操作失败');
+    }
+  }, [user, navigate, location]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -414,6 +455,8 @@ export default function GalleryPage() {
                 onEdit={setEditingImage}
                 onImageClick={openLightbox}
                 onDownload={handleSingleDownload}
+                onLike={handleLike}
+                liked={likedUuids.has(image.uuid)}
                 showActions={!!user}
                 selectMode={selectMode}
                 selected={selectedIds.has(image.id)}
