@@ -159,7 +159,6 @@ export {
   getNextLetter,
   generateNextSnapshotVersion,
   getBaseTag,
-  getLastWeeklySnapshot,
 };
 
 // 检查是否直接运行此脚本

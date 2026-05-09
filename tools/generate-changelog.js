@@ -18,7 +18,7 @@ const typeMap = {
   doc: '文档 | Docs',
   style: '其他 | Other',
   build: '其他 | Other',
-  ci: '其他 | Other',
+  ci: '自动化 | CI',
   test: '其他 | Other',
   chore: '其他 | Other',
 };
@@ -35,7 +35,7 @@ const chineseKeywords = {
 };
 
 // 忽略的前缀
-const IGNORE_PREFIXES = /^(?:build|ci|style|debug)\s*(?:\([^)]*\))*:\s*/;
+const IGNORE_PREFIXES = /^(?:build|style|debug)\s*(?:\([^)]*\))*:\s*/;
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -160,7 +160,10 @@ function classifyCommits(commits, withCommitizen = false) {
     '改进 | Improved': [],
     '文档 | Docs': [],
     '其他 | Other': [],
+    '自动化 | CI': [],
   };
+
+  const contributors = new Set();
 
   for (const commit of commits) {
     if (commit.message.includes('[skip changelog]')) continue;
@@ -175,6 +178,11 @@ function classifyCommits(commits, withCommitizen = false) {
       message = message.replace(/^(?<prefix>\w+)(?:\([\w\-]+\))?:\s*/, '');
     }
 
+    // 添加贡献者
+    if (commit.author && commit.author !== 'web-flow') {
+      contributors.add(commit.author);
+    }
+
     result[category].push({
       message,
       author: commit.author,
@@ -182,7 +190,7 @@ function classifyCommits(commits, withCommitizen = false) {
     });
   }
 
-  return result;
+  return { categories: result, contributors: Array.from(contributors) };
 }
 
 function getGitHubRepoUrl() {
@@ -202,7 +210,8 @@ function getGitHubRepoUrl() {
   }
 }
 
-function generateMd(data, tagName, latest, withHash = false) {
+function generateMd(classifiedData, tagName, latest, withHash = false) {
+  const { categories, contributors } = classifiedData;
   const now = new Date().toLocaleDateString('zh-CN');
   const lines = [];
   const repoUrl = getGitHubRepoUrl();
@@ -223,19 +232,27 @@ function generateMd(data, tagName, latest, withHash = false) {
   lines.push('');
 
   // 按分类顺序输出
-  const order = ['新增 | New', '修复 | Fix', '改进 | Improved', '文档 | Docs', '其他 | Other'];
+  const order = ['新增 | New', '修复 | Fix', '改进 | Improved', '文档 | Docs', '自动化 | CI', '其他 | Other'];
   for (const category of order) {
-    if (data[category].length === 0) continue;
+    if (categories[category].length === 0) continue;
 
     lines.push(`### ${category}`);
     lines.push('');
 
-    for (const item of data[category]) {
+    for (const item of categories[category]) {
       let line = `* ${item.message}`;
       if (withHash && repoUrl) {
         line += ` ([${item.hash}](${repoUrl}/commit/${item.hash}))`;
       } else if (withHash) {
         line += ` (${item.hash})`;
+      }
+      // 添加提交者信息
+      if (item.author && item.author !== 'web-flow') {
+        if (repoUrl) {
+          line += ` @${item.author}`;
+        } else {
+          line += ` @${item.author}`;
+        }
       }
       lines.push(line);
     }
