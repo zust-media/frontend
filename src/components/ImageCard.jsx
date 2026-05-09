@@ -129,7 +129,7 @@ export default function ImageCard({
               </button>
             )}
             <FiHeart size={12} className="cursor-pointer hover:text-error transition-colors" />
-            {onDownload ? (
+            {onDownload && (
               <button
                 className="btn btn-ghost btn-xs btn-square"
                 onClick={(e) => { e.stopPropagation(); onDownload(image); }}
@@ -137,8 +137,6 @@ export default function ImageCard({
               >
                 <FiDownload size={12} />
               </button>
-            ) : (
-              <FiDownload size={12} className="cursor-pointer hover:text-success transition-colors" />
             )}
           </div>
         </div>

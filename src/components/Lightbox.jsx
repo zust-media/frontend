@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { FiX, FiDownload, FiCamera, FiInfo, FiMaximize, FiClock, FiMapPin, FiAperture, FiZap, FiCopy, FiLink, FiCheck, FiTool } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import TagBadge from './TagBadge';
 import UserDisplay from './UserDisplay';
 
@@ -192,6 +193,7 @@ function DevLinkPanel({ image, visible }) {
 }
 
 export default function Lightbox({ image, devMode, onClose }) {
+  const { user } = useAuth();
   const [loadedImageId, setLoadedImageId] = useState(null);
   const [devPanelVisible, setDevPanelVisible] = useState(false);
   const [imgStyle, setImgStyle] = useState({});
@@ -278,16 +280,18 @@ export default function Lightbox({ image, devMode, onClose }) {
                 <FiTool size={18} className={devPanelVisible ? 'text-primary' : ''} />
               </button>
             )}
-            <a
-              href={downloadUrl}
-              download={image.original_name}
-              className="btn btn-ghost btn-sm btn-circle"
-              title="下载"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FiDownload size={18} />
-            </a>
+            {user && (
+              <a
+                href={downloadUrl}
+                download={image.original_name}
+                className="btn btn-ghost btn-sm btn-circle"
+                title="下载"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FiDownload size={18} />
+              </a>
+            )}
             <button className="btn btn-ghost btn-sm btn-circle" onClick={onClose} title="关闭 (Esc)">
               <FiX size={18} />
             </button>
