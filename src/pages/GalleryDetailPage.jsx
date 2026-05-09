@@ -3,12 +3,13 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   FiFolder, FiDownload, FiTrash2, FiEdit3, FiSave, FiX, FiCheckSquare,
   FiChevronLeft, FiChevronRight, FiArrowLeft, FiUsers, FiUserPlus,
-  FiArchive, FiRefreshCw,
+  FiArchive, FiRefreshCw, FiMinusCircle,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ImageCard from '../components/ImageCard';
+import ImageEditor from '../components/ImageEditor';
 import Lightbox from '../components/Lightbox';
 import DownloadModal from '../components/DownloadModal';
 
@@ -47,9 +48,15 @@ export default function GalleryDetailPage() {
   const [transferTarget, setTransferTarget] = useState('');
   const [transferring, setTransferring] = useState(false);
 
+  const [editingImage, setEditingImage] = useState(null);
+
+  const [editIsPublic, setEditIsPublic] = useState(false);
+  const [editIsPublicEditable, setEditIsPublicEditable] = useState(false);
+
   const myRole = gallery?.my_role;
   const isOwner = myRole === 'owner';
   const canManage = isOwner || myRole === 'admin';
+  const isSysAdmin = user?.role === 'admin';
 
   const fetchGallery = useCallback(async () => {
     try {
@@ -60,6 +67,8 @@ export default function GalleryDetailPage() {
       setTotalPages(data.pagination.total_pages);
       setEditName(data.gallery.name);
       setEditDesc(data.gallery.description || '');
+      setEditIsPublic(!!data.gallery.is_public);
+      setEditIsPublicEditable(!!data.gallery.is_public_editable);
     } catch (err) {
       toast.error(err.message || '加载失败');
       navigate('/galleries', { replace: true });
@@ -79,7 +88,12 @@ export default function GalleryDetailPage() {
     }
     setSaving(true);
     try {
-      const data = await api.updateGallery(uuid, { name: editName.trim(), description: editDesc.trim() });
+      const data = await api.updateGallery(uuid, {
+        name: editName.trim(),
+        description: editDesc.trim(),
+        is_public: editIsPublic,
+        ...(isSysAdmin ? { is_public_editable: editIsPublicEditable } : {}),
+      });
       toast.success('已保存');
       setEditMode(false);
       setGallery((prev) => ({ ...prev, ...data.gallery }));
@@ -92,7 +106,7 @@ export default function GalleryDetailPage() {
 
   const handleRemoveSelected = async () => {
     if (selectedUuids.size === 0) return;
-    if (!window.confirm(`确定要移除选中的 ${selectedUuids.size} 张图片吗？`)) return;
+    if (!window.confirm(`确定要从此照片夹移除选中的 ${selectedUuids.size} 张图片吗？`)) return;
     setRemoving(true);
     try {
       await api.removeImagesFromGallery(uuid, [...selectedUuids]);
@@ -103,6 +117,17 @@ export default function GalleryDetailPage() {
       toast.error(err.message || '移除失败');
     } finally {
       setRemoving(false);
+    }
+  };
+
+  const handleRemoveSingle = async (image) => {
+    if (!window.confirm(`确定要从此照片夹移除「${image.title || image.original_name}」吗？`)) return;
+    try {
+      await api.removeImagesFromGallery(uuid, [image.uuid]);
+      toast.success('已移除');
+      fetchGallery();
+    } catch (err) {
+      toast.error(err.message || '移除失败');
     }
   };
 
@@ -237,29 +262,62 @@ export default function GalleryDetailPage() {
         <div className="flex flex-wrap items-start gap-4 justify-between">
           <div className="flex-1 min-w-0">
             {editMode ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  type="text"
-                  className="input input-sm input-bordered w-full max-w-xs"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
-                />
-                <input
-                  type="text"
-                  placeholder="描述（可选）"
-                  className="input input-sm input-bordered w-full max-w-sm"
-                  value={editDesc}
-                  onChange={(e) => setEditDesc(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
-                />
-                <button className="btn btn-sm btn-primary gap-1" onClick={handleSave} disabled={saving}>
-                  {saving ? <span className="loading loading-spinner loading-xs"></span> : <FiSave size={14} />}
-                  保存
-                </button>
-                <button className="btn btn-sm btn-ghost" onClick={() => { setEditMode(false); setEditName(gallery.name); setEditDesc(gallery.description || ''); }}>
-                  <FiX size={14} /> 取消
-                </button>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    type="text"
+                    className="input input-sm input-bordered w-full max-w-xs"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="描述（可选）"
+                    className="input input-sm input-bordered w-full max-w-sm"
+                    value={editDesc}
+                    onChange={(e) => setEditDesc(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <label className="label cursor-pointer justify-start gap-2">
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-sm toggle-primary"
+                      checked={editIsPublic}
+                      onChange={(e) => setEditIsPublic(e.target.checked)}
+                    />
+                    <span className="label-text">公开可访问</span>
+                  </label>
+                  {isSysAdmin && (
+                    <label className="label cursor-pointer justify-start gap-2">
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-sm toggle-warning"
+                        checked={editIsPublicEditable}
+                        onChange={(e) => setEditIsPublicEditable(e.target.checked)}
+                      />
+                      <span className="label-text">公开可编辑</span>
+                      <span className="text-xs text-base-content/40">（仅管理员）</span>
+                    </label>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="btn btn-sm btn-primary gap-1" onClick={handleSave} disabled={saving}>
+                    {saving ? <span className="loading loading-spinner loading-xs"></span> : <FiSave size={14} />}
+                    保存
+                  </button>
+                  <button className="btn btn-sm btn-ghost" onClick={() => {
+                    setEditMode(false);
+                    setEditName(gallery.name);
+                    setEditDesc(gallery.description || '');
+                    setEditIsPublic(!!gallery.is_public);
+                    setEditIsPublicEditable(!!gallery.is_public_editable);
+                  }}>
+                    <FiX size={14} /> 取消
+                  </button>
+                </div>
               </div>
             ) : (
               <div>
@@ -419,8 +477,8 @@ export default function GalleryDetailPage() {
                 onClick={handleRemoveSelected}
                 disabled={selectedUuids.size === 0 || removing}
               >
-                {removing ? <span className="loading loading-spinner loading-xs"></span> : <FiTrash2 size={13} />}
-                移除选中
+                {removing ? <span className="loading loading-spinner loading-xs"></span> : <FiMinusCircle size={13} />}
+                从照片夹移除 ({selectedUuids.size})
               </button>
             </>
           )}
@@ -448,10 +506,12 @@ export default function GalleryDetailPage() {
                 key={image.uuid || image.id}
                 image={image}
                 onImageClick={openLightbox}
+                onEdit={myRole ? setEditingImage : undefined}
+                onDelete={myRole ? handleRemoveSingle : undefined}
                 selectMode={selectMode}
                 selected={selectedUuids.has(image.uuid)}
                 onToggleSelect={toggleSelect}
-                showActions={false}
+                showActions={!!myRole}
               />
             ))}
           </div>
@@ -502,6 +562,14 @@ export default function GalleryDetailPage() {
           downloadUrl={downloadImageUuids ? null : api.getGalleryDownloadUrl(uuid)}
           defaultName={gallery.name}
           onClose={() => setShowDownloadModal(false)}
+        />
+      )}
+
+      {editingImage && (
+        <ImageEditor
+          image={editingImage}
+          onClose={() => setEditingImage(null)}
+          onSaved={fetchGallery}
         />
       )}
     </div>
