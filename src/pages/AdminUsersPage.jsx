@@ -30,7 +30,7 @@ export default function AdminUsersPage() {
   const handleDelete = async (u) => {
     if (!window.confirm(`确定要删除用户「${u.nickname || u.username}」及其所有图片吗？此操作不可撤销。`)) return;
     try {
-      await api.deleteUser(u.id);
+      await api.deleteUser(u.uuid);
       toast.success('用户已删除');
       fetchUsers();
     } catch (err) {
@@ -82,8 +82,8 @@ export default function AdminUsersPage() {
                       {u.id === currentUser?.id && <span className="badge badge-xs ml-1">我</span>}
                     </td>
                     <td>
-                      <span className={`badge badge-xs ${u.role === 'admin' ? 'badge-warning' : ''}`}>
-                        {u.role === 'admin' ? '管理员' : '用户'}
+                      <span className={`badge badge-xs ${u.role === 'super_admin' ? 'badge-error' : u.role === 'admin' ? 'badge-warning' : ''}`}>
+                        {u.role === 'super_admin' ? '超级管理员' : u.role === 'admin' ? '管理员' : '用户'}
                       </span>
                     </td>
                     <td>{u.image_count}</td>
@@ -99,8 +99,8 @@ export default function AdminUsersPage() {
                         <button
                           className="btn btn-xs btn-ghost text-error"
                           onClick={() => handleDelete(u)}
-                          disabled={u.role === 'admin' || u.id === currentUser?.id}
-                          title={u.role === 'admin' ? '不能删除管理员' : u.id === currentUser?.id ? '不能删除自己' : '删除用户'}
+                          disabled={u.role === 'super_admin' || u.id === currentUser?.id}
+                          title={u.role === 'super_admin' ? '不能删除超级管理员' : u.id === currentUser?.id ? '不能删除自己' : '删除用户'}
                         >
                           <FiTrash2 size={12} />
                         </button>

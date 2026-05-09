@@ -95,7 +95,7 @@ export default function CategoryPage() {
     if (!user) return;
     if (!window.confirm(`确定要将「${image.title || image.original_name}」移出此分类吗？`)) return;
     try {
-      await api.updateImage(image.id, { category_id: undefined });
+      await api.updateImage(image.uuid || image.id, { category_id: undefined });
       toast.success('已移出此分类');
       fetchCategory();
     } catch (err) {

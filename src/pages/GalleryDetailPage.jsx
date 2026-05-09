@@ -58,7 +58,7 @@ export default function GalleryDetailPage() {
   const myRole = gallery?.my_role;
   const isOwner = myRole === 'owner';
   const canManage = isOwner || myRole === 'admin';
-  const isSysAdmin = user?.role === 'admin';
+  const isSysAdmin = user?.role === 'admin' || user?.role === 'super_admin';
 
   const fetchGallery = useCallback(async () => {
     try {

@@ -92,7 +92,7 @@ export default function TagPage() {
     if (!window.confirm(`确定要将「${image.title || image.original_name}」从此标签移除吗？`)) return;
     const newTags = (Array.isArray(image.tags) ? image.tags : []).filter((t) => t !== tagId);
     try {
-      await api.updateImage(image.id, { tags: newTags });
+      await api.updateImage(image.uuid || image.id, { tags: newTags });
       toast.success('已移除此标签');
       fetchTag();
     } catch (err) {

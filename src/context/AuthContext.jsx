@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [superAdminExists, setSuperAdminExists] = useState(null);
 
   const fetchUser = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -25,7 +26,16 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    fetchUser();
+    async function init() {
+      try {
+        const status = await api.checkSuperAdminStatus();
+        setSuperAdminExists(status.has_super_admin);
+      } catch {
+        setSuperAdminExists(false);
+      }
+      fetchUser();
+    }
+    init();
   }, [fetchUser]);
 
   const login = async (username, password) => {
@@ -36,7 +46,10 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (username, password, regToken) => {
-    await api.register({ username, password, regToken });
+    const result = await api.register({ username, password, regToken });
+    if (result.role === 'super_admin') {
+      setSuperAdminExists(true);
+    }
   };
 
   const logout = () => {
@@ -53,10 +66,10 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser, isAdmin, superAdminExists }}>
       {children}
     </AuthContext.Provider>
   );

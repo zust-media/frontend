@@ -11,7 +11,7 @@ export default function AdminUserEditPage() {
   const { user: currentUser, isAdmin } = useAuth();
   const navigate = useNavigate();
 
-  const isNew = !id || id === 'new' || isNaN(parseInt(id));
+  const isNew = !id || id === 'new';
 
   const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
@@ -65,7 +65,7 @@ export default function AdminUserEditPage() {
         await api.createUser(payload);
         toast.success('用户已创建');
       } else {
-        await api.updateUser(parseInt(id), payload);
+        await api.updateUser(id, payload);
         toast.success('用户已更新');
       }
       navigate('/admin/users', { replace: true });
@@ -80,7 +80,7 @@ export default function AdminUserEditPage() {
     if (isNew) return;
     if (!window.confirm(`确定要删除用户「${existingUser?.username}」及其所有图片吗？此操作不可撤销。`)) return;
     try {
-      await api.deleteUser(existingUser.id);
+      await api.deleteUser(existingUser.uuid);
       toast.success('用户已删除');
       navigate('/admin/users', { replace: true });
     } catch (err) {
@@ -102,7 +102,7 @@ export default function AdminUserEditPage() {
           <FiUser size={20} className="text-primary" />
           <h2 className="text-xl font-bold">{isNew ? '新建用户' : '编辑用户'}</h2>
         </div>
-        {!isNew && existingUser && existingUser.id !== currentUser?.id && existingUser.role !== 'admin' && (
+        {!isNew && existingUser && existingUser.id !== currentUser?.id && existingUser.role !== 'admin' && existingUser.role !== 'super_admin' && (
           <button className="btn btn-sm btn-ghost text-error" onClick={handleDelete}>
             <FiTrash2 size={16} />
             删除
@@ -173,6 +173,7 @@ export default function AdminUserEditPage() {
             >
               <option value="user">普通用户</option>
               <option value="admin">管理员</option>
+              <option value="super_admin">超级管理员</option>
             </select>
             {!isNew && existingUser?.id === currentUser?.id && (
               <p className="fieldset-label text-base-content/40">不能修改自己的权限组</p>

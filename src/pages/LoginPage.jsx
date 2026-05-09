@@ -75,20 +75,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="divider text-xs text-base-content/40">演示账号</div>
-          <div className="grid grid-cols-2 gap-2 text-center text-xs">
-            <div className="bg-base-200 rounded-lg p-2">
-              <div className="font-bold text-primary">admin</div>
-              <div className="text-base-content/50">admin123</div>
-              <div className="badge badge-warning badge-xs mt-1">管理员</div>
-            </div>
-            <div className="bg-base-200 rounded-lg p-2">
-              <div className="font-bold">user</div>
-              <div className="text-base-content/50">user123</div>
-              <div className="badge badge-xs mt-1">普通用户</div>
-            </div>
-          </div>
-
           <p className="text-center text-sm text-base-content/60">
             还没有账号？{' '}
             <Link to="/register" className="text-primary hover:underline">

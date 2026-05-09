@@ -167,7 +167,7 @@ export default function AdminPage() {
                           {u.nickname || u.username || (u.uuid ? u.uuid.substring(0, 8) : '未知')}
                         </Link>
                       </td>
-                      <td><span className={`badge badge-xs ${u.role === 'admin' ? 'badge-warning' : ''}`}>{u.role === 'admin' ? '管理员' : '用户'}</span></td>
+                      <td><span className={`badge badge-xs ${u.role === 'super_admin' ? 'badge-error' : u.role === 'admin' ? 'badge-warning' : ''}`}>{u.role === 'super_admin' ? '超级管理员' : u.role === 'admin' ? '管理员' : '用户'}</span></td>
                       <td>{u.cnt}</td>
                     </tr>
                     );

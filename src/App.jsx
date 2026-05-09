@@ -103,8 +103,8 @@ function MobileDrawer() {
                   </div>
                 </div>
                 <span>{user.username}</span>
-                <span className={`badge badge-xs ${isAdmin ? 'badge-warning' : ''}`}>
-                  {isAdmin ? '管理员' : '用户'}
+                <span className={`badge badge-xs ${user.role === 'super_admin' ? 'badge-error' : isAdmin ? 'badge-warning' : ''}`}>
+                  {user.role === 'super_admin' ? '超级管理员' : isAdmin ? '管理员' : '用户'}
                 </span>
               </Link>
             </li>
@@ -215,6 +215,24 @@ function GuestRoute({ children }) {
 }
 
 function AppRoutes() {
+  const { superAdminExists, loading } = useAuth();
+
+  if (loading || superAdminExists === null) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+
+  if (!superAdminExists) {
+    return (
+      <Routes>
+        <Route path="*" element={<RegisterPage />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
       <Route path="/" element={<GalleryPage />} />

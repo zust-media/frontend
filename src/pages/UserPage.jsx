@@ -60,13 +60,13 @@ export default function UserPage() {
   const toggleSelectImage = useCallback((image) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(image.id)) next.delete(image.id);
-      else next.add(image.id);
+      if (next.has(image.uuid)) next.delete(image.uuid);
+      else next.add(image.uuid);
       return next;
     });
   }, []);
 
-  const selectAll = () => setSelectedIds(new Set(images.map((img) => img.id)));
+  const selectAll = () => setSelectedIds(new Set(images.map((img) => img.uuid)));
   const deselectAll = () => setSelectedIds(new Set());
 
   const handleBatchDelete = async () => {
@@ -143,7 +143,7 @@ export default function UserPage() {
                 onOpen={() => setLightboxImage(img)}
                 showActions={isOwner}
                 selectMode={selectMode}
-                selected={selectedIds.has(img.id)}
+                selected={selectedIds.has(img.uuid)}
                 onToggleSelect={toggleSelectImage}
               />
             ))}

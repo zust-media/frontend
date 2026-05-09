@@ -182,7 +182,7 @@ export default function GalleryPage() {
   const handleDelete = async (image) => {
     if (!window.confirm(`确定要删除 "${image.title || image.original_name}" 吗？此操作不可撤销。`)) return;
     try {
-      await api.deleteImage(image.id);
+      await api.deleteImage(image.uuid);
       toast.success('删除成功');
       refresh();
     } catch (err) {
@@ -210,13 +210,13 @@ export default function GalleryPage() {
   const toggleSelectImage = useCallback((image) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(image.id)) next.delete(image.id);
-      else next.add(image.id);
+      if (next.has(image.uuid)) next.delete(image.uuid);
+      else next.add(image.uuid);
       return next;
     });
   }, []);
 
-  const selectAll = () => setSelectedIds(new Set(images.map((img) => img.id)));
+  const selectAll = () => setSelectedIds(new Set(images.map((img) => img.uuid)));
   const deselectAll = () => setSelectedIds(new Set());
 
   const handleBatchDelete = async () => {
@@ -470,7 +470,7 @@ export default function GalleryPage() {
                 liked={likedUuids.has(image.uuid)}
                 showActions={!!user}
                 selectMode={selectMode}
-                selected={selectedIds.has(image.id)}
+                selected={selectedIds.has(image.uuid)}
                 onToggleSelect={toggleSelectImage}
               />
             ))}
@@ -540,7 +540,7 @@ export default function GalleryPage() {
 
       {showAddToGallery && (
         <AddToGalleryModal
-          imageUuids={images.filter((img) => selectedIds.has(img.id)).map((img) => img.uuid).filter(Boolean)}
+          imageUuids={images.filter((img) => selectedIds.has(img.uuid)).map((img) => img.uuid).filter(Boolean)}
           onClose={() => {
             setShowAddToGallery(false);
             setSelectMode(false);

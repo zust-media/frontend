@@ -17,7 +17,7 @@ export default function RegisterPage() {
   const [captchaImage, setCaptchaImage] = useState('');
   const [captchaLoading, setCaptchaLoading] = useState(true);
 
-  const { register } = useAuth();
+  const { register, superAdminExists } = useAuth();
   const navigate = useNavigate();
 
   const fetchCaptcha = useCallback(async () => {
@@ -77,7 +77,9 @@ export default function RegisterPage() {
           <div className="text-center mb-4">
             <FiImage className="mx-auto text-4xl text-primary mb-2" />
             <h2 className="text-2xl font-bold">创建账号</h2>
-            <p className="text-base-content/60 text-sm mt-1">注册加入 ZustMedia 图库系统</p>
+            <p className="text-base-content/60 text-sm mt-1">
+              {superAdminExists === false ? '欢迎使用 ZustMedia！请注册超级管理员账户以开始使用' : '注册加入 ZustMedia 图库系统'}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -173,9 +175,9 @@ export default function RegisterPage() {
               </div>
             </fieldset>
 
-            <div className="alert alert-info text-sm py-2">
+            <div className={`alert py-2 text-sm ${superAdminExists === false ? 'alert-warning' : 'alert-info'}`}>
               <FiAlertCircle />
-              <span>注册后默认为普通用户，管理员需由现有管理员手动设置</span>
+              <span>{superAdminExists === false ? '您正在注册超级管理员账户，注册后即可管理整个系统' : '注册后默认为普通用户，管理员需由现有管理员手动设置'}</span>
             </div>
 
             <button className="btn btn-primary w-full gap-2" type="submit" disabled={loading}>
@@ -193,12 +195,14 @@ export default function RegisterPage() {
             </button>
           </form>
 
+          {superAdminExists !== false && (
           <p className="text-center text-sm text-base-content/60">
             已有账号？{' '}
             <Link to="/login" className="text-primary hover:underline">
               立即登录
             </Link>
           </p>
+          )}
         </div>
       </div>
     </div>

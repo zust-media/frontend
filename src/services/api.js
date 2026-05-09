@@ -63,6 +63,10 @@ export const api = {
     return request('/auth/me');
   },
 
+  checkSuperAdminStatus() {
+    return request('/auth/has-super-admin');
+  },
+
   updateProfile(data) {
     return request('/auth/profile', {
       method: 'PUT',
@@ -76,8 +80,8 @@ export const api = {
     return request(`/images/list?${query}`);
   },
 
-  getImage(id) {
-    return request(`/images/detail/${id}`);
+  getImage(uuid) {
+    return request(`/images/detail/${encodeURIComponent(uuid)}`);
   },
 
   getImageByUuid(uuid) {
@@ -105,35 +109,35 @@ export const api = {
     });
   },
 
-  updateImage(id, data) {
-    return request(`/images/detail/${id}`, {
+  updateImage(uuid, data) {
+    return request(`/images/detail/${encodeURIComponent(uuid)}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   },
 
-  deleteImage(id) {
-    return request(`/images/delete/${id}`, {
+  deleteImage(uuid) {
+    return request(`/images/delete/${encodeURIComponent(uuid)}`, {
       method: 'DELETE',
     });
   },
 
-  batchDeleteImages(ids) {
+  batchDeleteImages(imageUuids) {
     return request('/images/batch-delete', {
       method: 'POST',
-      body: JSON.stringify({ ids }),
+      body: JSON.stringify({ image_uuids: imageUuids }),
     });
   },
 
-  batchUpdateImages(ids, data) {
+  batchUpdateImages(imageUuids, data) {
     return request('/images/batch-update', {
       method: 'POST',
-      body: JSON.stringify({ ids, ...data }),
+      body: JSON.stringify({ image_uuids: imageUuids, ...data }),
     });
   },
 
-  getBatchInfo(ids) {
-    return request(`/images/batch-info?ids=${ids.join(',')}`);
+  getBatchInfo(uuids) {
+    return request(`/images/batch-info?uuids=${uuids.join(',')}`);
   },
 
   getDuplicates() {
@@ -246,22 +250,22 @@ export const api = {
     });
   },
 
-  updateUser(id, data) {
-    return request(`/users/${id}`, {
+  updateUser(uuid, data) {
+    return request(`/users/${encodeURIComponent(uuid)}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   },
 
-  updateUserRole(id, role) {
-    return request(`/users/${id}`, {
+  updateUserRole(uuid, role) {
+    return request(`/users/${encodeURIComponent(uuid)}`, {
       method: 'PUT',
       body: JSON.stringify({ role }),
     });
   },
 
-  deleteUser(id) {
-    return request(`/users/${id}`, {
+  deleteUser(uuid) {
+    return request(`/users/${encodeURIComponent(uuid)}`, {
       method: 'DELETE',
     });
   },

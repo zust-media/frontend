@@ -62,8 +62,8 @@ export default function Navbar({ drawerId }) {
               <li>
                 <Link to={`/user/${user.uuid || user.slug || user.id}`} className="flex items-center gap-2">
                   <span>{user.username}</span>
-                  <span className={`text-xs ${isAdmin ? 'text-warning' : 'text-base-content/40'}`}>
-                    {isAdmin ? '管理员' : '普通用户'}
+                  <span className={`text-xs ${user.role === 'super_admin' ? 'text-error' : isAdmin ? 'text-warning' : 'text-base-content/40'}`}>
+                    {user.role === 'super_admin' ? '超级管理员' : isAdmin ? '管理员' : '普通用户'}
                   </span>
                 </Link>
               </li>

@@ -27,7 +27,7 @@ export default function AdminDuplicatesPage() {
   const handleDelete = async (image) => {
     if (!window.confirm(`确定要删除 "${image.title || image.original_name}" 吗？此操作不可撤销。`)) return;
     try {
-      await api.deleteImage(image.id);
+      await api.deleteImage(image.uuid || image.id);
       toast.success('删除成功');
       fetchDuplicates();
     } catch (err) {
