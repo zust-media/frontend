@@ -118,7 +118,9 @@ export default function GalleryDetailPage() {
     }
   };
 
-  const toggleSelect = (imageUuid) => {
+  const toggleSelect = (image) => {
+    const imageUuid = image.uuid;
+    if (!imageUuid) return;
     setSelectedUuids((prev) => {
       const next = new Set(prev);
       if (next.has(imageUuid)) next.delete(imageUuid);
@@ -126,6 +128,14 @@ export default function GalleryDetailPage() {
       return next;
     });
   };
+
+  const openLightbox = useCallback((image) => {
+    setLightboxImage(image);
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxImage(null);
+  }, []);
 
   const selectAll = () => {
     const allUuids = images.map((i) => i.uuid).filter(Boolean);
@@ -247,27 +257,17 @@ export default function GalleryDetailPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {images.map((image) => (
-              <div key={image.uuid || image.id} className="relative">
-                {selectMode && (
-                  <label className="absolute top-2 left-2 z-10 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-primary checkbox-sm"
-                      checked={selectedUuids.has(image.uuid)}
-                      onChange={() => toggleSelect(image.uuid)}
-                    />
-                  </label>
-                )}
-                <div onClick={() => { if (!selectMode) setLightboxImage(image); }}>
-                  <ImageCard
-                    image={image}
-                    selectMode={selectMode}
-                    selected={selectedUuids.has(image.uuid)}
-                  />
-                </div>
-              </div>
+              <ImageCard
+                key={image.uuid || image.id}
+                image={image}
+                onImageClick={openLightbox}
+                selectMode={selectMode}
+                selected={selectedUuids.has(image.uuid)}
+                onToggleSelect={toggleSelect}
+                showActions={false}
+              />
             ))}
           </div>
 
@@ -299,7 +299,7 @@ export default function GalleryDetailPage() {
         <Lightbox
           image={lightboxImage}
           images={images}
-          onClose={() => setLightboxImage(null)}
+          onClose={closeLightbox}
           onPrev={() => {
             const idx = images.findIndex((i) => (i.uuid || i.id) === (lightboxImage.uuid || lightboxImage.id));
             if (idx > 0) setLightboxImage(images[idx - 1]);
