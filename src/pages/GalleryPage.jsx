@@ -10,6 +10,7 @@ import ImageEditor from '../components/ImageEditor';
 import Lightbox from '../components/Lightbox';
 import BatchEditModal from '../components/BatchEditModal';
 import AddToGalleryModal from '../components/AddToGalleryModal';
+import DownloadModal from '../components/DownloadModal';
 import MultiSelectBar from '../components/MultiSelectBar';
 import useDevTools from '../hooks/useDevTools';
 
@@ -41,6 +42,8 @@ export default function GalleryPage() {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [showBatchEdit, setShowBatchEdit] = useState(false);
   const [showAddToGallery, setShowAddToGallery] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloadImageUuids, setDownloadImageUuids] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
 
   const [selectedTags, setSelectedTags] = useState([]);
@@ -178,34 +181,20 @@ export default function GalleryPage() {
     }
   };
 
-  const handleBatchDownload = async () => {
+  const handleBatchDownload = () => {
     if (selectedIds.size === 0) return;
     const idSet = new Set(selectedIds);
     const uuids = images.filter((img) => idSet.has(img.id)).map((img) => img.uuid).filter(Boolean);
     if (uuids.length === 0) return;
-    try {
-      const token = localStorage.getItem('token');
-      const resp = await fetch(api.batchDownloadUrl(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ image_uuids: uuids, format: 'jpeg' }),
-      });
-      if (!resp.ok) {
-        const data = await resp.json().catch(() => ({}));
-        throw new Error(data.error || '下载失败');
-      }
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `batch_${uuids.length}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      toast.error(err.message || '下载失败');
-    }
+    setDownloadImageUuids(uuids);
+    setShowDownloadModal(true);
+  };
+
+  const closeDownloadModal = () => {
+    setShowDownloadModal(false);
+    setDownloadImageUuids(null);
+    setSelectMode(false);
+    setSelectedIds(new Set());
   };
 
   return (
@@ -496,6 +485,13 @@ export default function GalleryPage() {
             setSelectMode(false);
             setSelectedIds(new Set());
           }}
+        />
+      )}
+
+      {showDownloadModal && (
+        <DownloadModal
+          imageUuids={downloadImageUuids}
+          onClose={closeDownloadModal}
         />
       )}
     </>
