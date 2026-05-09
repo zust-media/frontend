@@ -124,7 +124,14 @@ export default function ImageCard({
               </button>
             )}
             <FiHeart size={12} className="cursor-pointer hover:text-error transition-colors" />
-            <FiDownload size={12} className="cursor-pointer hover:text-success transition-colors" />
+            <a
+              href={api.getDownloadUrl(null, image.download_url)}
+              download={image.original_name}
+              onClick={(e) => e.stopPropagation()}
+              title="下载"
+            >
+              <FiDownload size={12} className="cursor-pointer hover:text-success transition-colors" />
+            </a>
           </div>
         </div>
       </div>
