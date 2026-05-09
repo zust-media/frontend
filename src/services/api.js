@@ -1,5 +1,24 @@
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
+const API_ORIGIN = (() => {
+  if (API_BASE.startsWith('http://') || API_BASE.startsWith('https://')) {
+    const u = new URL(API_BASE);
+    return u.origin;
+  }
+  return '';
+})();
+
+function toAbsoluteUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:') || path.startsWith('data:')) {
+    return path;
+  }
+  if (API_ORIGIN && path.startsWith('/')) {
+    return API_ORIGIN + path;
+  }
+  return path;
+}
+
 function getToken() {
   return localStorage.getItem('token');
 }
@@ -145,19 +164,23 @@ export const api = {
   },
 
   getImageUrl(filename, signedUrl) {
-    return signedUrl || '';
+    return toAbsoluteUrl(signedUrl);
   },
 
   getThumbUrl(filename, thumbUrl) {
-    return thumbUrl || '';
+    return toAbsoluteUrl(thumbUrl);
   },
 
   getPreviewUrl(filename, previewUrl) {
-    return previewUrl || '';
+    return toAbsoluteUrl(previewUrl);
   },
 
   getDownloadUrl(filename, downloadUrl) {
-    return downloadUrl || '';
+    return toAbsoluteUrl(downloadUrl);
+  },
+
+  resolveImageUrl(path) {
+    return toAbsoluteUrl(path);
   },
 
   // Tags

@@ -104,7 +104,7 @@ export default function AdminDuplicatesPage() {
                         <div className="text-xs font-medium text-success mb-2">原始文件（优先保留）</div>
                         <div className="flex items-start gap-3">
                           <img
-                            src={original.thumbnail_url}
+                            src={api.getThumbUrl(null, original.thumbnail_url)}
                             alt={original.original_name}
                             className="w-20 h-20 object-cover rounded-lg border border-base-300"
                           />
@@ -121,7 +121,7 @@ export default function AdminDuplicatesPage() {
                       {group.images.filter((img) => img !== original).map((img) => (
                         <div key={img.id} className={`p-3 flex items-start gap-3 ${img.is_duplicate ? 'bg-error/5' : ''}`}>
                           <img
-                            src={img.thumbnail_url}
+                            src={api.getThumbUrl(null, img.thumbnail_url)}
                             alt={img.original_name}
                             className="w-20 h-20 object-cover rounded-lg border border-base-300"
                           />

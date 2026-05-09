@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiHeart, FiDownload, FiZoomIn, FiEdit3, FiTrash2, FiMinusCircle, FiFolder } from 'react-icons/fi';
+import { FiHeart, FiDownload, FiZoomIn, FiEdit3, FiTrash2 } from 'react-icons/fi';
 import { useMetadata } from '../context/MetadataContext';
+import { api } from '../services/api';
 import TagBadge from './TagBadge';
-import UserDisplay from './UserDisplay';
 
 const formatSize = (bytes) => {
   if (!bytes) return '';
@@ -12,36 +12,19 @@ const formatSize = (bytes) => {
   return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2)} ${sizes[i]}`;
 };
 
-function formatMegapixels(image) {
-  const dimsRaw = image?.exif?.dimensions;
-  if (!dimsRaw) return null;
-  const match = String(dimsRaw).match(/(\d+)\s*[x×]\s*(\d+)/i);
-  if (!match) return null;
-  const mp = (parseInt(match[1]) * parseInt(match[2])) / 1000000;
-  return mp.toFixed(1) + 'MP';
-}
-
 export default function ImageCard({
   image,
   onOpen,
   onImageClick,
   onDelete,
   onEdit,
-  onRemove,
-  onDownload,
-  onLike,
-  liked,
   showActions,
   selectMode,
   selected,
   onToggleSelect,
 }) {
   const [imgError, setImgError] = useState(false);
-  const { getTagName, getCategoryName, categories } = useMetadata();
-
-  const catInfo = categories.find((c) => c.id === image.category_id);
-  const catSlug = catInfo?.slug;
-  const catHref = catSlug ? `/category/${catSlug}` : (image.category_id ? `/category/${image.category_id}` : null);
+  const { getTagName, getCategoryName } = useMetadata();
 
   const handlePreview = () => {
     if (selectMode && onToggleSelect) {
@@ -52,7 +35,7 @@ export default function ImageCard({
     if (handler) handler(image);
   };
 
-  const imgSrc = image.thumbnail_url || '#';
+  const imgSrc = api.getThumbUrl(null, image.thumbnail_url) || '#';
 
   return (
     <div className={`card bg-base-100 shadow-md hover:shadow-xl transition-all w-full overflow-hidden group ${selected ? 'ring-2 ring-primary' : ''}`}>
@@ -96,16 +79,6 @@ export default function ImageCard({
           {image.title || image.original_name || '未命名'}
         </h3>
 
-        {catHref && (
-          <Link
-            to={catHref}
-            className="flex items-center gap-1 text-xs text-primary hover:underline w-fit"
-          >
-            <FiFolder size={12} />
-            {getCategoryName(image.category_id)}
-          </Link>
-        )}
-
         <div className="flex flex-wrap gap-1">
           {Array.isArray(image.tags) && image.tags.length > 0
             ? image.tags.map((tagId) => (
@@ -114,14 +87,22 @@ export default function ImageCard({
             : <span className="text-xs text-base-content/40">无标签</span>}
         </div>
 
-        <div className="flex items-center justify-between text-xs text-base-content/60 mt-auto pt-1">
-          <div className="min-w-0">
-            {formatMegapixels(image) && (
-              <div className="text-xs text-base-content/40">{formatMegapixels(image)}</div>
+        <div className="flex items-center justify-between text-xs text-base-content/60 mt-1">
+          <div className="flex items-center gap-2 truncate">
+            {image.uploader_uuid ? (
+              <Link
+                to={`/user/${image.uploader_uuid}`}
+                className="hover:text-primary transition-colors truncate"
+                onClick={(e) => e.stopPropagation()}
+              >
+                @ {image.uploader_uuid.substring(0, 8)}
+              </Link>
+            ) : (
+              <span className="truncate">匿名</span>
             )}
-            <div className="flex items-center gap-2">
-              <UserDisplay uuid={image.uploader_uuid} />
-            </div>
+            {image.file_size > 0 && (
+              <span className="shrink-0">{formatSize(image.file_size)}</span>
+            )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {showActions && onEdit && (
@@ -133,15 +114,6 @@ export default function ImageCard({
                 <FiEdit3 size={12} />
               </button>
             )}
-            {showActions && onRemove && (
-              <button
-                className="btn btn-ghost btn-xs btn-square text-warning"
-                onClick={(e) => { e.stopPropagation(); onRemove(image); }}
-                title="移出"
-              >
-                <FiMinusCircle size={12} />
-              </button>
-            )}
             {showActions && onDelete && (
               <button
                 className="btn btn-ghost btn-xs btn-square text-error"
@@ -151,22 +123,8 @@ export default function ImageCard({
                 <FiTrash2 size={12} />
               </button>
             )}
-            <button
-              className={`btn btn-ghost btn-xs btn-square ${liked ? 'text-error' : ''}`}
-              onClick={(e) => { e.stopPropagation(); onLike?.(image); }}
-              title={liked ? '取消喜欢' : '喜欢'}
-            >
-              <FiHeart size={12} fill={liked ? 'currentColor' : 'none'} />
-            </button>
-            {onDownload && (
-              <button
-                className="btn btn-ghost btn-xs btn-square"
-                onClick={(e) => { e.stopPropagation(); onDownload(image); }}
-                title="下载"
-              >
-                <FiDownload size={12} />
-              </button>
-            )}
+            <FiHeart size={12} className="cursor-pointer hover:text-error transition-colors" />
+            <FiDownload size={12} className="cursor-pointer hover:text-success transition-colors" />
           </div>
         </div>
       </div>

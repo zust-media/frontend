@@ -110,7 +110,7 @@ export default function ImageEditor({ image, onClose, onSaved }) {
         <div className="space-y-4">
           <div className="flex gap-4">
             <img
-              src={image.thumbnail_url}
+              src={api.getThumbUrl(null, image.thumbnail_url)}
               alt={image.title}
               className="w-32 h-32 object-cover rounded-lg border"
             />

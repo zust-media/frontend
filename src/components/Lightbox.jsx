@@ -92,7 +92,7 @@ function DevLinkPanel({ image, visible }) {
 
   const copyLink = async (url, label) => {
     try {
-      await navigator.clipboard.writeText(window.location.origin + url);
+      await navigator.clipboard.writeText(api.resolveImageUrl(url));
       setCopiedIdx(label);
       toast.success('已复制到剪贴板');
       setTimeout(() => setCopiedIdx(null), 2000);
