@@ -9,6 +9,7 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ImageCard from '../components/ImageCard';
 import Lightbox from '../components/Lightbox';
+import DownloadModal from '../components/DownloadModal';
 
 export default function GalleryDetailPage() {
   const { uuid } = useParams();
@@ -29,8 +30,9 @@ export default function GalleryDetailPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedUuids, setSelectedUuids] = useState(new Set());
   const [removing, setRemoving] = useState(false);
-  const [downloading, setDownloading] = useState(false);
-  const [downloadFormat, setDownloadFormat] = useState('jpeg');
+
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloadImageUuids, setDownloadImageUuids] = useState(null);
 
   const [lightboxImage, setLightboxImage] = useState(null);
 
@@ -89,33 +91,6 @@ export default function GalleryDetailPage() {
       toast.error(err.message || '移除失败');
     } finally {
       setRemoving(false);
-    }
-  };
-
-  const handleDownload = async () => {
-    setDownloading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const resp = await fetch(api.getGalleryDownloadUrl(uuid, downloadFormat), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!resp.ok) {
-        const data = await resp.json().catch(() => ({}));
-        throw new Error(data.error || '下载失败');
-      }
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${gallery.name || '照片夹'}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      toast.error(err.message || '下载失败');
-    } finally {
-      setDownloading(false);
     }
   };
 
@@ -211,22 +186,16 @@ export default function GalleryDetailPage() {
                 <FiEdit3 size={14} /> 编辑
               </button>
             )}
-            <select
-              className="select select-sm select-bordered"
-              value={downloadFormat}
-              onChange={(e) => setDownloadFormat(e.target.value)}
-            >
-              <option value="jpeg">JPEG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-            </select>
             <button
               className="btn btn-primary btn-sm gap-1"
-              onClick={handleDownload}
-              disabled={downloading || images.length === 0}
+              onClick={() => {
+                setDownloadImageUuids(null);
+                setShowDownloadModal(true);
+              }}
+              disabled={images.length === 0}
             >
-              {downloading ? <span className="loading loading-spinner loading-xs"></span> : <FiDownload size={14} />}
-              批量下载
+              <FiDownload size={14} />
+              下载全部
             </button>
           </div>
         </div>
@@ -247,12 +216,23 @@ export default function GalleryDetailPage() {
               <button className="btn btn-xs btn-ghost" onClick={deselectAll} disabled={selectedUuids.size === 0}>取消全选</button>
               <div className="w-px h-4 bg-base-300"></div>
               <button
+                className="btn btn-xs btn-ghost gap-1"
+                onClick={() => {
+                  setDownloadImageUuids([...selectedUuids]);
+                  setShowDownloadModal(true);
+                }}
+                disabled={selectedUuids.size === 0}
+              >
+                <FiDownload size={13} />
+                下载选中 ({selectedUuids.size})
+              </button>
+              <button
                 className="btn btn-xs btn-error gap-1"
                 onClick={handleRemoveSelected}
                 disabled={selectedUuids.size === 0 || removing}
               >
                 {removing ? <span className="loading loading-spinner loading-xs"></span> : <FiTrash2 size={13} />}
-                移除选中 ({selectedUuids.size})
+                移除选中
               </button>
             </>
           )}
@@ -318,6 +298,15 @@ export default function GalleryDetailPage() {
             const idx = images.findIndex((i) => (i.uuid || i.id) === (lightboxImage.uuid || lightboxImage.id));
             if (idx < images.length - 1) setLightboxImage(images[idx + 1]);
           }}
+        />
+      )}
+
+      {showDownloadModal && (
+        <DownloadModal
+          imageUuids={downloadImageUuids}
+          downloadUrl={downloadImageUuids ? null : api.getGalleryDownloadUrl(uuid)}
+          defaultName={gallery.name}
+          onClose={() => setShowDownloadModal(false)}
         />
       )}
     </div>

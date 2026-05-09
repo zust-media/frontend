@@ -320,15 +320,14 @@ export const api = {
     });
   },
 
-  getGalleryDownloadUrl(uuid, format = '') {
-    const qs = format ? `?format=${format}` : '';
-    return `${API_BASE}/galleries/${uuid}/download${qs}`;
+  getGalleryDownloadUrl(uuid) {
+    return `${API_BASE}/galleries/${uuid}/download`;
   },
 
-  batchDownloadImages(imageUuids, format = 'jpeg') {
+  batchDownloadImages(imageUuids) {
     return request('/images/batch-download', {
       method: 'POST',
-      body: JSON.stringify({ image_uuids: imageUuids, format }),
+      body: JSON.stringify({ image_uuids: imageUuids }),
     });
   },
 
