@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { FiHeart, FiDownload, FiZoomIn, FiEdit3, FiTrash2 } from 'react-icons/fi';
 import { useMetadata } from '../context/MetadataContext';
 import { api } from '../services/api';
+import UserDisplay from './UserDisplay';
 import TagBadge from './TagBadge';
 
 const formatSize = (bytes) => {
@@ -18,6 +18,8 @@ export default function ImageCard({
   onImageClick,
   onDelete,
   onEdit,
+  onLike,
+  liked,
   showActions,
   selectMode,
   selected,
@@ -89,17 +91,7 @@ export default function ImageCard({
 
         <div className="flex items-center justify-between text-xs text-base-content/60 mt-1">
           <div className="flex items-center gap-2 truncate">
-            {image.uploader_uuid ? (
-              <Link
-                to={`/user/${image.uploader_uuid}`}
-                className="hover:text-primary transition-colors truncate"
-                onClick={(e) => e.stopPropagation()}
-              >
-                @ {image.uploader_uuid.substring(0, 8)}
-              </Link>
-            ) : (
-              <span className="truncate">匿名</span>
-            )}
+            <UserDisplay uuid={image.uploader_uuid} />
             {image.file_size > 0 && (
               <span className="shrink-0">{formatSize(image.file_size)}</span>
             )}
@@ -123,7 +115,13 @@ export default function ImageCard({
                 <FiTrash2 size={12} />
               </button>
             )}
-            <FiHeart size={12} className="cursor-pointer hover:text-error transition-colors" />
+            <button
+                className={`btn btn-ghost btn-xs btn-square ${liked ? 'text-error' : ''}`}
+                onClick={(e) => { e.stopPropagation(); onLike?.(image); }}
+                title={liked ? '取消喜欢' : '喜欢'}
+              >
+                <FiHeart size={12} fill={liked ? 'currentColor' : 'none'} />
+              </button>
             <a
               href={api.getDownloadUrl(null, image.download_url)}
               download={image.original_name}
