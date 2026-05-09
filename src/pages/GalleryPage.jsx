@@ -119,13 +119,14 @@ export default function GalleryPage() {
     const pendingLike = sessionStorage.getItem('pending_like');
     if (user && pendingLike) {
       sessionStorage.removeItem('pending_like');
-      api.toggleLike(pendingLike).then(() => {
+      api.toggleLike(pendingLike).then((data) => {
         setLikedUuids(prev => {
           const next = new Set(prev);
-          if (next.has(pendingLike)) next.delete(pendingLike); else next.add(pendingLike);
+          if (data.liked) next.add(pendingLike); else next.delete(pendingLike);
           return next;
         });
-        toast.success('已添加到喜欢');
+        if (data.liked) toast.success('已添加到喜欢');
+        else toast.success('已取消喜欢');
       }).catch((err) => {
         if (err.message?.code === 'no_default_gallery' || err.message?.includes('请先在设置中选择')) {
           toast.error('请先在设置中选择一个喜欢文件夹', { duration: 4000 });
