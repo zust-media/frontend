@@ -1,16 +1,9 @@
 import { useState } from 'react';
-import { FiHeart, FiDownload, FiZoomIn, FiEdit3, FiTrash2 } from 'react-icons/fi';
+import { FiHeart, FiDownload, FiZoomIn, FiEdit3, FiTrash2, FiFolder } from 'react-icons/fi';
 import { useMetadata } from '../context/MetadataContext';
 import { api } from '../services/api';
 import UserDisplay from './UserDisplay';
 import TagBadge from './TagBadge';
-
-const formatSize = (bytes) => {
-  if (!bytes) return '';
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2)} ${sizes[i]}`;
-};
 
 export default function ImageCard({
   image,
@@ -92,8 +85,11 @@ export default function ImageCard({
         <div className="flex items-center justify-between text-xs text-base-content/60 mt-1">
           <div className="flex items-center gap-2 truncate">
             <UserDisplay uuid={image.uploader_uuid} />
-            {image.file_size > 0 && (
-              <span className="shrink-0">{formatSize(image.file_size)}</span>
+            {image.category_id && (
+              <span className="flex items-center gap-1 shrink-0 text-base-content/40">
+                <FiFolder size={10} />
+                {getCategoryName(image.category_id)}
+              </span>
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
