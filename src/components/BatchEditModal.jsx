@@ -6,7 +6,7 @@ import { useMetadata } from '../context/MetadataContext';
 import TagBadge from './TagBadge';
 
 export default function BatchEditModal({ ids, onClose, onSaved }) {
-  const { tags: metaTags, getTagName } = useMetadata();
+  const { tags: metaTags, getTagName, refresh: refreshMeta } = useMetadata();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [info, setInfo] = useState(null);
@@ -37,7 +37,7 @@ export default function BatchEditModal({ ids, onClose, onSaved }) {
     });
   };
 
-  const addTagFromInput = () => {
+  const addTagFromInput = async () => {
     const input = tagInput.trim().toLowerCase();
     if (!input) return;
     const match = metaTags.find(
@@ -49,6 +49,25 @@ export default function BatchEditModal({ ids, onClose, onSaved }) {
         next.add(match.id);
         return next;
       });
+    } else {
+      const originalInput = tagInput.trim();
+      const computedSlug = /^[a-zA-Z0-9]+$/.test(originalInput)
+        ? originalInput.toLowerCase()
+        : originalInput.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      const slug = (computedSlug && !/^[0-9]+$/.test(computedSlug)) ? computedSlug : undefined;
+      try {
+        const result = await api.createTag(originalInput, slug);
+        await refreshMeta();
+        if (result.id) {
+          setCheckedTags((prev) => {
+            const next = new Set(prev);
+            next.add(result.id);
+            return next;
+          });
+        }
+      } catch (err) {
+        toast.error(err.message || '创建标签失败');
+      }
     }
     setTagInput('');
     setShowSuggestions(false);

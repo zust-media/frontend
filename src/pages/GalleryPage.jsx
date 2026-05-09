@@ -236,7 +236,7 @@ export default function GalleryPage() {
   const handleBatchDownload = () => {
     if (selectedIds.size === 0) return;
     const idSet = new Set(selectedIds);
-    const uuids = images.filter((img) => idSet.has(img.id)).map((img) => img.uuid).filter(Boolean);
+    const uuids = images.filter((img) => idSet.has(img.uuid)).map((img) => img.uuid).filter(Boolean);
     if (uuids.length === 0) return;
     setDownloadImageUuids(uuids);
     setShowDownloadModal(true);

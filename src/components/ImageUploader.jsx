@@ -3,6 +3,7 @@ import { FiUploadCloud, FiX, FiPlus, FiImage, FiLoader } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
 import { useAppConfig } from '../context/AppConfigContext';
+import { useMetadata } from '../context/MetadataContext';
 import TagBadge from './TagBadge';
 
 export default function ImageUploader({ onSuccess }) {
@@ -10,16 +11,16 @@ export default function ImageUploader({ onSuccess }) {
   const maxSize = config.maxFileSizeMB;
   const maxSizeBytes = config.maxFileSizeBytes;
   const maxBatch = config.maxBatchCount;
+  const { tags: metaTags, refresh: refreshMeta } = useMetadata();
 
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [title, setTitle] = useState('');
   const [tagInput, setTagInput] = useState('');
-  const [tags, setTags] = useState([]);
+  const [tagIds, setTagIds] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState('');
-  const [allTags, setAllTags] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const fileInputRef = useRef(null);
   const blobUrlsRef = useRef(new Map());
@@ -31,7 +32,6 @@ export default function ImageUploader({ onSuccess }) {
       const uncat = cats.find((c) => c.id === 1);
       if (uncat) setCategoryId(String(uncat.id));
     }).catch(() => {});
-    api.getTags().then((d) => setAllTags((d.tags || []).map((t) => t.name))).catch(() => {});
   }, []);
 
   const getBlobUrl = (file) => {
@@ -103,16 +103,39 @@ export default function ImageUploader({ onSuccess }) {
     addFiles(dropped);
   };
 
-  const addTag = () => {
-    const tag = tagInput.trim();
-    if (tag && !tags.includes(tag)) {
-      setTags([...tags, tag]);
+  const addTag = async () => {
+    const input = tagInput.trim();
+    if (!input) return;
+    const match = metaTags.find(
+      (t) => t.name.toLowerCase() === input.toLowerCase()
+    );
+    if (match) {
+      if (!tagIds.includes(match.id)) setTagIds([...tagIds, match.id]);
+      setTagInput('');
+      setShowSuggestions(false);
+      return;
+    }
+
+    const computedSlug = /^[a-zA-Z0-9]+$/.test(input)
+      ? input.toLowerCase()
+      : input.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const slug = (computedSlug && !/^[0-9]+$/.test(computedSlug)) ? computedSlug : undefined;
+
+    try {
+      const result = await api.createTag(input, slug);
+      await refreshMeta();
+      if (result.id) {
+        setTagIds((prev) => prev.includes(result.id) ? prev : [...prev, result.id]);
+      }
+    } catch (err) {
+      toast.error(err.message || '创建标签失败');
     }
     setTagInput('');
+    setShowSuggestions(false);
   };
 
-  const removeTag = (tag) => {
-    setTags(tags.filter((t) => t !== tag));
+  const removeTag = (tagId) => {
+    setTagIds(tagIds.filter((id) => id !== tagId));
   };
 
   const handleTagKeyDown = (e) => {
@@ -135,7 +158,7 @@ export default function ImageUploader({ onSuccess }) {
         const formData = new FormData();
         formData.append('file', files[0]);
         if (title) formData.append('title', title);
-        if (tags.length > 0) formData.append('tags', JSON.stringify(tags));
+        if (tagIds.length > 0) formData.append('tags', JSON.stringify(tagIds));
         if (categoryId) formData.append('category_id', categoryId);
         await api.uploadImage(formData);
       } else {
@@ -150,7 +173,7 @@ export default function ImageUploader({ onSuccess }) {
       toast.success(files.length === 1 ? '上传成功！' : `成功上传 ${files.length} 个文件`);
       clearAllFiles();
       setTitle('');
-      setTags([]);
+      setTagIds([]);
       onSuccess?.();
     } catch (err) {
       toast.error(err.message || '上传失败');
@@ -201,21 +224,26 @@ export default function ImageUploader({ onSuccess }) {
                 <FiPlus />
               </button>
             </div>
-            {showSuggestions && tagInput && allTags.filter((t) => t.includes(tagInput) && !tags.includes(t)).length > 0 && (
+            {showSuggestions && tagInput && metaTags.filter((t) => t.name.toLowerCase().includes(tagInput.trim().toLowerCase()) && !tagIds.includes(t.id)).length > 0 && (
               <ul className="absolute z-10 top-full mt-1 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg max-h-32 overflow-y-auto">
-                {allTags.filter((t) => t.includes(tagInput) && !tags.includes(t)).slice(0, 8).map((t) => (
-                  <li key={t} className="px-3 py-1.5 text-sm cursor-pointer hover:bg-base-200"
-                    onMouseDown={(e) => { e.preventDefault(); setTagInput(t); addTag(); }}>
-                    {t}
+                {metaTags.filter((t) => t.name.toLowerCase().includes(tagInput.trim().toLowerCase()) && !tagIds.includes(t.id)).slice(0, 8).map((t) => (
+                  <li key={t.id} className="px-3 py-1.5 text-sm cursor-pointer hover:bg-base-200"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      if (!tagIds.includes(t.id)) setTagIds([...tagIds, t.id]);
+                      setTagInput('');
+                      setShowSuggestions(false);
+                    }}>
+                    {t.name}
                   </li>
                 ))}
               </ul>
             )}
           </div>
-          {tags.length > 0 && (
+          {tagIds.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {tags.map((tag) => (
-                <TagBadge key={tag} name={tag} onRemove={() => removeTag(tag)} />
+              {tagIds.map((tagId) => (
+                <TagBadge key={tagId} tagId={tagId} onRemove={() => removeTag(tagId)} />
               ))}
             </div>
           )}
