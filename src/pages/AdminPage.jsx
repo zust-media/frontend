@@ -119,7 +119,12 @@ export default function AdminPage() {
                   <div key={img.id} className="flex items-center justify-between text-sm p-2 rounded bg-base-200">
                     <div className="flex-1 min-w-0 mr-2">
                       <div className="truncate font-medium">{img.title || img.original_name}</div>
-                      <div className="text-xs text-base-content/40">{img.uploader_uuid ? img.uploader_uuid.substring(0, 8) : ''} · {img.created_at?.substring(0, 16)}</div>
+                      <div className="text-xs text-base-content/40">
+                        <Link to={`/user/${img.uploader_slug || img.uploader_uuid}`} className="hover:underline">
+                          {img.uploader_nickname || img.uploader_username || (img.uploader_uuid ? img.uploader_uuid.substring(0, 8) : '')}
+                        </Link>
+                        {' · '}{img.created_at?.substring(0, 16)}
+                      </div>
                     </div>
                     <span className="text-xs text-base-content/50 flex-shrink-0">{formatSize(img.file_size)}</span>
                   </div>
@@ -144,20 +149,29 @@ export default function AdminPage() {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>UUID</th>
+                    <th>用户</th>
                     <th>角色</th>
                     <th>上传数</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.topUploaders?.map((u, idx) => (
+                  {stats.topUploaders?.map((u, idx) => {
+                    const userPath = u.slug
+                      ? `/user/${u.slug}`
+                      : u.uuid ? `/user/${u.uuid}` : '#';
+                    return (
                     <tr key={u.uuid || idx}>
                       <td className="font-bold text-base-content/40">{idx + 1}</td>
-                      <td className="font-medium font-mono text-xs">{u.uuid ? u.uuid.substring(0, 8) : u.username}</td>
+                      <td>
+                        <Link to={userPath} className="font-medium text-sm hover:underline">
+                          {u.nickname || u.username || (u.uuid ? u.uuid.substring(0, 8) : '未知')}
+                        </Link>
+                      </td>
                       <td><span className={`badge badge-xs ${u.role === 'admin' ? 'badge-warning' : ''}`}>{u.role === 'admin' ? '管理员' : '用户'}</span></td>
                       <td>{u.cnt}</td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
