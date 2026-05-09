@@ -276,6 +276,23 @@ export const api = {
     return request(`/admin/logs?${query}`);
   },
 
+  getAuthCodes() {
+    return request('/admin/auth-codes');
+  },
+
+  createAuthCode(data) {
+    return request('/admin/auth-codes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteAuthCode(id) {
+    return request(`/admin/auth-codes/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
   // Galleries
   getGalleries() {
     return request('/galleries');

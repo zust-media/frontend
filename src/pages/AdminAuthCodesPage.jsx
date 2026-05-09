@@ -14,7 +14,7 @@ export default function AdminAuthCodesPage() {
 
   const fetchCodes = useCallback(async () => {
     try {
-      const data = await api.request('/admin/auth-codes');
+      const data = await api.getAuthCodes();
       setCodes(data.codes || []);
     } catch (err) {
       toast.error(err.message || '加载失败');
@@ -30,12 +30,9 @@ export default function AdminAuthCodesPage() {
   const handleCreate = async () => {
     setCreating(true);
     try {
-      const data = await api.request('/admin/auth-codes', {
-        method: 'POST',
-        body: JSON.stringify({
-          hours: parseInt(hours) || 24,
-          max_uses: maxUses ? parseInt(maxUses) : null,
-        }),
+      const data = await api.createAuthCode({
+        hours: parseInt(hours) || 24,
+        max_uses: maxUses ? parseInt(maxUses) : null,
       });
       setNewCode(data.code);
       toast.success('授权码已生成');
@@ -50,7 +47,7 @@ export default function AdminAuthCodesPage() {
   const handleDelete = async (id) => {
     if (!window.confirm('确定要删除此授权码吗？')) return;
     try {
-      await api.request(`/admin/auth-codes/${id}`, { method: 'DELETE' });
+      await api.deleteAuthCode(id);
       toast.success('已删除');
       fetchCodes();
     } catch (err) {
