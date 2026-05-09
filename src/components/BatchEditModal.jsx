@@ -11,6 +11,7 @@ export default function BatchEditModal({ ids, onClose, onSaved }) {
   const [saving, setSaving] = useState(false);
   const [info, setInfo] = useState(null);
   const [categoryId, setCategoryId] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
   const [checkedTags, setCheckedTags] = useState(new Set());
   const [tagInput, setTagInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -67,17 +68,16 @@ export default function BatchEditModal({ ids, onClose, onSaved }) {
       payload.category_id = newCategoryId ? parseInt(newCategoryId) : null;
     }
 
+    payload.is_public = isPublic;
+
     const addTags = [...checkedTags].filter((id) => !originalCommon.has(id));
     const removeTags = [...originalCommon].filter((id) => !checkedTags.has(id));
 
     if (addTags.length > 0) payload.add_tags = addTags;
     if (removeTags.length > 0) payload.remove_tags = removeTags;
 
-    if (Object.keys(payload).length === 0) {
-      toast('没有需要保存的更改', { icon: 'ℹ️' });
-      setSaving(false);
-      onClose();
-      return;
+    if (newCategoryId === String(originalCategoryId) && addTags.length === 0 && removeTags.length === 0) {
+      delete payload.category_id;
     }
 
     try {
@@ -131,6 +131,19 @@ export default function BatchEditModal({ ids, onClose, onSaved }) {
               {info.common_category_id === null && (
                 <p className="fieldset-label text-base-content/40">所选图片的分类各不相同，留空则不修改分类</p>
               )}
+            </fieldset>
+
+            <fieldset className="fieldset">
+              <label className="label cursor-pointer justify-start gap-3">
+                <input
+                  type="checkbox"
+                  className="toggle toggle-primary"
+                  checked={isPublic}
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                />
+                <span className="label-text font-medium">公开图片</span>
+                <span className="label-text text-base-content/40 text-xs">允许未登录访客查看所选图片</span>
+              </label>
             </fieldset>
 
             <fieldset className="fieldset">

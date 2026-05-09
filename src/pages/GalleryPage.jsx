@@ -197,6 +197,12 @@ export default function GalleryPage() {
     setSelectedIds(new Set());
   };
 
+  const handleSingleDownload = useCallback((image) => {
+    if (!image?.uuid) return;
+    setDownloadImageUuids([image.uuid]);
+    setShowDownloadModal(true);
+  }, []);
+
   return (
     <>
       <div className="space-y-6">
@@ -407,6 +413,7 @@ export default function GalleryPage() {
                 onDelete={handleDelete}
                 onEdit={setEditingImage}
                 onImageClick={openLightbox}
+                onDownload={handleSingleDownload}
                 showActions={!!user}
                 selectMode={selectMode}
                 selected={selectedIds.has(image.id)}

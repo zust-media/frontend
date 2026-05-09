@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FiShield, FiUsers, FiImage, FiTag, FiFolder, FiHardDrive, FiChevronRight, FiBarChart2, FiCopy, FiActivity } from 'react-icons/fi';
+import { FiShield, FiUsers, FiImage, FiTag, FiFolder, FiHardDrive, FiChevronRight, FiBarChart2, FiCopy, FiActivity, FiFolderPlus, FiKey } from 'react-icons/fi';
 import { Link, Navigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
@@ -48,6 +48,8 @@ export default function AdminPage() {
     { label: '标签管理', desc: '创建、删除标签', icon: FiTag, to: '/admin/tags' },
     { label: '重复图片', desc: '查看和管理重复上传的图片', icon: FiCopy, to: '/admin/duplicates' },
     { label: '操作日志', desc: '查看所有管理员操作记录', icon: FiActivity, to: '/admin/logs' },
+    { label: '照片夹管理', desc: '查看和管理所有用户的照片夹', icon: FiFolderPlus, to: '/galleries' },
+    { label: '临时授权码', desc: '生成和管理API临时授权码', icon: FiKey, to: '/admin/auth-codes' },
   ];
 
   return (

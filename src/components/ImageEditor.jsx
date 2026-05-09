@@ -13,6 +13,7 @@ export default function ImageEditor({ image, onClose, onSaved }) {
   const [tagIds, setTagIds] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [saving, setSaving] = useState(false);
   const tagInputRef = useRef(null);
@@ -26,6 +27,7 @@ export default function ImageEditor({ image, onClose, onSaved }) {
       setDescription(image.description || '');
       setTagIds(Array.isArray(image.tags) ? image.tags.filter((id) => metaTags.some((t) => t.id === id)) : []);
       setCategoryId(image.category_id || '');
+      setIsPublic(!!image.is_public);
     }
   }, [image, metaTags]);
 
@@ -78,6 +80,7 @@ export default function ImageEditor({ image, onClose, onSaved }) {
         description,
         tags: tagIds,
         category_id: categoryId || null,
+        is_public: isPublic,
       });
       toast.success('更新成功');
       onSaved?.();
@@ -141,6 +144,19 @@ export default function ImageEditor({ image, onClose, onSaved }) {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="图片标题"
             />
+          </fieldset>
+
+          <fieldset className="fieldset">
+            <label className="label cursor-pointer justify-start gap-3">
+              <input
+                type="checkbox"
+                className="toggle toggle-primary"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+              />
+              <span className="label-text font-medium">公开图片</span>
+              <span className="label-text text-base-content/40 text-xs">允许未登录访客查看此图片</span>
+            </label>
           </fieldset>
 
           <fieldset className="fieldset">

@@ -15,6 +15,7 @@ import AdminUserEditPage from './pages/AdminUserEditPage';
 import AdminTagEditPage from './pages/AdminTagEditPage';
 import AdminCategoryEditPage from './pages/AdminCategoryEditPage';
 import AdminLogsPage from './pages/AdminLogsPage';
+import AdminAuthCodesPage from './pages/AdminAuthCodesPage';
 import UserPage from './pages/UserPage';
 import SettingsPage from './pages/SettingsPage';
 import TagPage from './pages/TagPage';
@@ -22,7 +23,7 @@ import CategoryPage from './pages/CategoryPage';
 import UploadPage from './pages/UploadPage';
 import GalleryListPage from './pages/GalleryListPage';
 import GalleryDetailPage from './pages/GalleryDetailPage';
-import { FiImage, FiFolder, FiTag, FiHome, FiSettings, FiShield, FiLogOut, FiLogIn, FiUserPlus, FiX, FiCopy, FiUploadCloud, FiActivity, FiFolderPlus } from 'react-icons/fi';
+import { FiImage, FiFolder, FiTag, FiHome, FiSettings, FiShield, FiLogOut, FiLogIn, FiUserPlus, FiX, FiCopy, FiUploadCloud, FiActivity, FiFolderPlus, FiKey } from 'react-icons/fi';
 
 const DRAWER_ID = 'nav-drawer';
 
@@ -112,6 +113,14 @@ function MobileDrawer() {
                 <Link to="/admin" onClick={closeDrawer} className="flex items-center gap-3">
                   <FiShield size={18} />
                   管理面板
+                </Link>
+              </li>
+            )}
+            {isAdmin && (
+              <li>
+                <Link to="/admin/auth-codes" onClick={closeDrawer} className="flex items-center gap-3">
+                  <FiKey size={18} />
+                  临时授权码
                 </Link>
               </li>
             )}
@@ -345,11 +354,17 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/admin/logs"
+      <Route path="/admin/logs"
         element={
           <ProtectedRoute requireAdmin>
             <AdminLogsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/admin/auth-codes"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminAuthCodesPage />
           </ProtectedRoute>
         }
       />
