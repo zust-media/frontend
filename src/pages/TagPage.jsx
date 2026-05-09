@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FiChevronLeft, FiChevronRight, FiTag } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiTag, FiDownload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
 import { useMetadata } from '../context/MetadataContext';
 import { useAuth } from '../context/AuthContext';
 import ImageCard from '../components/ImageCard';
 import Lightbox from '../components/Lightbox';
+import DownloadModal from '../components/DownloadModal';
 
 export default function TagPage() {
   const { id } = useParams();
@@ -19,6 +20,7 @@ export default function TagPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [lightboxImage, setLightboxImage] = useState(null);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const fetchTag = useCallback(async () => {
     if (!id) return;
@@ -82,6 +84,8 @@ export default function TagPage() {
     );
   }
 
+  const imageUuids = images.map((img) => img.uuid).filter(Boolean);
+
   return (
     <div className="space-y-6">
       <div className="breadcrumbs text-sm">
@@ -92,9 +96,20 @@ export default function TagPage() {
         </ul>
       </div>
 
-      <h1 className="text-2xl font-bold">
-        标签: {tag ? getTagName(tag.id) : `#${id}`}
-      </h1>
+      <div className="flex flex-wrap items-center gap-3 justify-between">
+        <h1 className="text-2xl font-bold">
+          标签: {tag ? getTagName(tag.id) : `#${id}`}
+        </h1>
+        {images.length > 0 && (
+          <button
+            className="btn btn-primary btn-sm gap-1"
+            onClick={() => setShowDownloadModal(true)}
+          >
+            <FiDownload size={14} />
+            下载全部
+          </button>
+        )}
+      </div>
 
       {images.length === 0 ? (
         <p className="text-base-content/50 py-10 text-center">该标签下暂无图片</p>
@@ -134,6 +149,14 @@ export default function TagPage() {
 
       {lightboxImage && (
         <Lightbox image={lightboxImage} onClose={() => setLightboxImage(null)} />
+      )}
+
+      {showDownloadModal && (
+        <DownloadModal
+          imageUuids={imageUuids}
+          defaultName={tag ? `tag_${getTagName(tag.id)}` : ''}
+          onClose={() => setShowDownloadModal(false)}
+        />
       )}
     </div>
   );
