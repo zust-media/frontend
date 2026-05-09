@@ -208,9 +208,9 @@ export default function Lightbox({ image, devMode, onClose }) {
     setImgStyle({});
   }, [image?.id]);
 
-  const previewUrl = image ? (image.preview_url || api.getPreviewUrl(image.filename, image.preview_url)) : '';
-  const thumbUrl = image ? (image.thumbnail_url || api.getThumbUrl(image.filename, image.thumbnail_url)) : '';
-  const downloadUrl = image ? (image.download_url || api.getDownloadUrl(image.filename, image.download_url)) : '';
+  const previewUrl = image ? api.getPreviewUrl(image.filename, image.preview_url) : '';
+  const thumbUrl = image ? api.getThumbUrl(image.filename, image.thumbnail_url) : '';
+  const downloadUrl = image ? api.getDownloadUrl(image.filename, image.download_url) : '';
   const exif = image?.exif || {};
   const hasExif = Object.keys(exif).length > 0;
   const imageLoaded = loadedImageId === image?.id;
