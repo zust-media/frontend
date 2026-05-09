@@ -427,7 +427,7 @@ export default function GalleryDetailPage() {
         </div>
       )}
 
-      {gallery.is_archived && (
+      {!!gallery.is_archived && (
         <div className="alert alert-warning mb-4">
           <FiArchive />
           <span>此照片夹已归档，无法添加或移除图片</span>
