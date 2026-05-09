@@ -53,6 +53,8 @@ export default function GalleryDetailPage() {
   const [editIsPublic, setEditIsPublic] = useState(false);
   const [editIsPublicEditable, setEditIsPublicEditable] = useState(false);
 
+  const [likedUuids, setLikedUuids] = useState(new Set());
+
   const myRole = gallery?.my_role;
   const isOwner = myRole === 'owner';
   const canManage = isOwner || myRole === 'admin';
@@ -80,6 +82,29 @@ export default function GalleryDetailPage() {
   useEffect(() => {
     fetchGallery();
   }, [fetchGallery]);
+
+  useEffect(() => {
+    if (!user) { setLikedUuids(new Set()); return; }
+    api.getLikedUuids().then(d => setLikedUuids(new Set(d.liked_uuids || []))).catch(() => {});
+  }, [user]);
+
+  const handleLike = useCallback(async (image) => {
+    if (!user) return;
+    try {
+      const data = await api.toggleLike(image.uuid);
+      setLikedUuids(prev => {
+        const next = new Set(prev);
+        if (data.liked) next.add(image.uuid); else next.delete(image.uuid);
+        return next;
+      });
+    } catch (err) {
+      if (err.message?.code === 'no_default_gallery' || err.message?.includes('请先在设置中选择')) {
+        toast.error(<span>请先在<a href="/settings" className="underline">设置页面</a>选择一个喜欢文件夹</span>, { duration: 4000 });
+      } else {
+        toast.error(err.message || '操作失败');
+      }
+    }
+  }, [user]);
 
   const handleSave = async () => {
     if (!editName.trim()) {
@@ -508,6 +533,8 @@ export default function GalleryDetailPage() {
                 onImageClick={openLightbox}
                 onEdit={myRole ? setEditingImage : undefined}
                 onRemove={myRole ? handleRemoveSingle : undefined}
+                onLike={user ? handleLike : undefined}
+                liked={likedUuids.has(image.uuid)}
                 selectMode={selectMode}
                 selected={selectedUuids.has(image.uuid)}
                 onToggleSelect={toggleSelect}

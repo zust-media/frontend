@@ -259,6 +259,15 @@ export default function Lightbox({ image, devMode, onClose }) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+  const formatMP = () => {
+    const dims = exif?.dimensions;
+    if (!dims) return null;
+    const match = String(dims).match(/(\d+)\s*[x×]\s*(\d+)/i);
+    if (!match) return null;
+    const mp = (parseInt(match[1]) * parseInt(match[2])) / 1000000;
+    return mp.toFixed(1) + 'MP';
+  };
+
   return (
     <div className="modal modal-open z-[9999]" onClick={onClose}>
       <div
@@ -340,13 +349,14 @@ export default function Lightbox({ image, devMode, onClose }) {
                 <div>文件名: {image.original_name}</div>
                 <div>类型: {image.mime_type}</div>
                 <div>大小: {formatSize(image.file_size)}</div>
+                {formatMP() && <div>像素量: {formatMP()}</div>}
                 <div>上传时间: {image.created_at}</div>
               </div>
             </div>
 
             {hasExif && (
               <>
-                <div className="divider my-1 text-xs text-base-content/40">EXIF 摄影信息</div>
+                <div className="divider my-1 text-xs text-base-content/40">文件信息</div>
                 <div className="space-y-2">
                   {Object.entries(exifLabels).map(([key, label]) => {
                     const value = exif[key];
@@ -368,7 +378,7 @@ export default function Lightbox({ image, devMode, onClose }) {
 
             {!hasExif && (
               <>
-                <div className="divider my-1 text-xs text-base-content/40">EXIF 摄影信息</div>
+                <div className="divider my-1 text-xs text-base-content/40">文件信息</div>
                 <div className="text-xs text-base-content/30 text-center py-2">
                   此图片不包含 EXIF 信息，或信息已被移除
                 </div>

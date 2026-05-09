@@ -353,10 +353,10 @@ export const api = {
   },
 
   // Favorites / Like
-  toggleLike(imageUuid) {
+  toggleLike(imageUuid, action) {
     return request('/galleries/like', {
       method: 'POST',
-      body: JSON.stringify({ image_uuid: imageUuid }),
+      body: JSON.stringify({ image_uuid: imageUuid, action }),
     });
   },
 

@@ -12,6 +12,15 @@ const formatSize = (bytes) => {
   return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2)} ${sizes[i]}`;
 };
 
+function formatMegapixels(image) {
+  const dimsRaw = image?.exif?.dimensions;
+  if (!dimsRaw) return null;
+  const match = String(dimsRaw).match(/(\d+)\s*[x×]\s*(\d+)/i);
+  if (!match) return null;
+  const mp = (parseInt(match[1]) * parseInt(match[2])) / 1000000;
+  return mp.toFixed(1) + 'MP';
+}
+
 export default function ImageCard({
   image,
   onOpen,
@@ -106,11 +115,13 @@ export default function ImageCard({
         </div>
 
         <div className="flex items-center justify-between text-xs text-base-content/60 mt-auto pt-1">
-          <div className="flex items-center gap-2 truncate">
-            <UserDisplay uuid={image.uploader_uuid} />
-            {image.file_size > 0 && (
-              <span className="shrink-0">{formatSize(image.file_size)}</span>
+          <div className="min-w-0">
+            {formatMegapixels(image) && (
+              <div className="text-xs text-base-content/40">{formatMegapixels(image)}</div>
             )}
+            <div className="flex items-center gap-2">
+              <UserDisplay uuid={image.uploader_uuid} />
+            </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {showActions && onEdit && (
